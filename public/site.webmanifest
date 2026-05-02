@@ -1,0 +1,10 @@
+{
+  "name": "GifPleasure",
+  "short_name": "GifPleasure",
+  "description": "Adult GIFs collection",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0a0a0a",
+  "background_color": "#0a0a0a",
+  "icons": []
+}

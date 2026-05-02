@@ -1,0 +1,49 @@
+import { getGifs } from "@/lib/gifs";
+import GifGrid from "@/components/GifGrid";
+import { Locale } from "@/lib/types";
+import { Metadata } from "next";
+
+interface PopularPageProps {
+  params: {
+    lang: Locale;
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: PopularPageProps): Promise<Metadata> {
+  return {
+    title: "Popular GIFs | GifPleasure",
+    description:
+      "Watch the most popular adult GIFs. Top rated and most viewed animated GIFs.",
+  };
+}
+
+export default async function PopularPage({ params }: PopularPageProps) {
+  const allGifs = await getGifs();
+
+  // Сортируем по просмотрам (от большего к меньшему)
+  const popularGifs = [...allGifs].sort(
+    (a, b) => (b.views || 0) - (a.views || 0),
+  );
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">🔥 Popular GIFs</h1>
+        <p className="text-textDim">Most viewed GIFs by our community</p>
+      </div>
+
+      {popularGifs.length === 0 ? (
+        <div className="text-center py-12 text-textDim">No GIFs yet.</div>
+      ) : (
+        <GifGrid
+          gifs={popularGifs}
+          lang={params.lang}
+          firstPosition={7}
+          interval={9}
+        />
+      )}
+    </div>
+  );
+}
