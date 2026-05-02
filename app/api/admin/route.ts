@@ -1,9 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
+import {
+  S3Client,
+  PutObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
+import { readFileSync } from "fs";
 import path from "path";
-import { existsSync } from "fs";
 
-// GET /api/admin — получить список всех гифок
+// Конфигурация Selectel
+const s3 = new S3Client({
+  region: "ru-3",
+  endpoint:
+    process.env.SELECTEL_ENDPOINT || "https://s3.ru-3.storage.selcloud.ru",
+  credentials: {
+    accessKeyId: process.env.SELECTEL_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.SELECTEL_SECRET_ACCESS_KEY || "",
+  },
+  forcePathStyle: true,
+});
+
+const BUCKET = process.env.SELECTEL_BUCKET || "gifpleasure-storage";
+
+// Генерация уникального ID
+function generateId(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// Загрузка файла в Selectel
+async function uploadToSelectel(
+  buffer: Buffer,
+  key: string,
+  contentType: string,
+) {
+  const command = new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    Body: buffer,
+    ContentType: contentType,
+    ACL: "public-read",
+  });
+  await s3.send(command);
+  return `https://${BUCKET}.selstorage.ru/${key}`;
+}
+
+// GET: получение списка гифок (из metadata.json)
 export async function GET() {
   try {
     const metadataPath = path.join(
@@ -12,24 +55,18 @@ export async function GET() {
       "gifs",
       "metadata.json",
     );
+    const { readFile } = await import("fs/promises");
 
-    if (!existsSync(metadataPath)) {
-      return NextResponse.json([]);
-    }
+    const content = await readFile(metadataPath, "utf-8");
+    const metadata = JSON.parse(content);
 
-    const fileContent = await readFile(metadataPath, "utf-8");
-    const metadata = JSON.parse(fileContent);
     return NextResponse.json(metadata);
   } catch (error) {
-    console.error("GET error:", error);
-    return NextResponse.json(
-      { error: "Failed to read metadata" },
-      { status: 500 },
-    );
+    return NextResponse.json([]);
   }
 }
 
-// POST /api/admin — добавить новую гифку (3 файла + метаданные)
+// POST: добавление новой гифки
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -67,17 +104,9 @@ export async function POST(request: NextRequest) {
     const expectedWmBase = wmName.slice(0, -3);
     const expectedPreviewBase = previewName.slice(0, -8);
 
-    if (baseName !== expectedWmBase) {
+    if (baseName !== expectedWmBase || baseName !== expectedPreviewBase) {
       return NextResponse.json(
-        { error: `Base names don't match: ${baseName} vs ${expectedWmBase}` },
-        { status: 400 },
-      );
-    }
-    if (baseName !== expectedPreviewBase) {
-      return NextResponse.json(
-        {
-          error: `Base names don't match: ${baseName} vs ${expectedPreviewBase}`,
-        },
+        { error: "Base names do not match" },
         { status: 400 },
       );
     }
@@ -99,46 +128,39 @@ export async function POST(request: NextRequest) {
     const width = parseInt(formData.get("width") as string) || 480;
     const height = parseInt(formData.get("height") as string) || 270;
 
-    // ID из названия
-    const id = titleEn
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+    const id = generateId(titleEn);
 
-    // Папки
-    const webpDir = path.join(process.cwd(), "public", "gifs", "webp");
-    const previewDir = path.join(process.cwd(), "public", "gifs", "preview");
+    // Загружаем файлы в Selectel
+    const cleanBuffer = Buffer.from(await cleanFile.arrayBuffer());
+    const wmBuffer = Buffer.from(await wmFile.arrayBuffer());
+    const previewBuffer = Buffer.from(await previewFile.arrayBuffer());
 
-    if (!existsSync(webpDir)) await mkdir(webpDir, { recursive: true });
-    if (!existsSync(previewDir)) await mkdir(previewDir, { recursive: true });
-
-    // Сохраняем файлы
-    await writeFile(
-      path.join(webpDir, `${id}.webp`),
-      Buffer.from(await cleanFile.arrayBuffer()),
-    );
-    await writeFile(
-      path.join(webpDir, `${id}_wm.webp`),
-      Buffer.from(await wmFile.arrayBuffer()),
-    );
-    await writeFile(
-      path.join(previewDir, `${id}_preview.webp`),
-      Buffer.from(await previewFile.arrayBuffer()),
+    await uploadToSelectel(cleanBuffer, `webp/${id}.webp`, "image/webp");
+    await uploadToSelectel(wmBuffer, `webp/${id}_wm.webp`, "image/webp");
+    await uploadToSelectel(
+      previewBuffer,
+      `preview/${id}_preview.webp`,
+      "image/webp",
     );
 
-    // Metadata
+    // Обновляем metadata.json
     const metadataPath = path.join(
       process.cwd(),
       "public",
       "gifs",
       "metadata.json",
     );
+    const { readFile, writeFile } = await import("fs/promises");
+
     let metadata = [];
-    if (existsSync(metadataPath)) {
-      metadata = JSON.parse(await readFile(metadataPath, "utf-8"));
+    try {
+      const content = await readFile(metadataPath, "utf-8");
+      metadata = JSON.parse(content);
+    } catch (e) {
+      // Файла нет
     }
 
-    metadata.push({
+    const newEntry = {
       id,
       slug: { en: id },
       title: { en: titleEn },
@@ -151,13 +173,17 @@ export async function POST(request: NextRequest) {
       likes: 0,
       views: 0,
       createdAt: new Date().toISOString().split("T")[0],
-    });
+    };
 
+    metadata.push(newEntry);
     await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 
     return NextResponse.json({ success: true, id, url: `/en/gif/${id}` });
   } catch (error: any) {
-    console.error("POST error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      { error: error.message || "Upload failed" },
+      { status: 500 },
+    );
   }
 }

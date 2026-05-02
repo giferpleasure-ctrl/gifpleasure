@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, writeFile, unlink } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+// Конфигурация Selectel
+const s3 = new S3Client({
+  region: "ru-3",
+  endpoint:
+    process.env.SELECTEL_ENDPOINT || "https://s3.ru-3.storage.selcloud.ru",
+  credentials: {
+    accessKeyId: process.env.SELECTEL_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.SELECTEL_SECRET_ACCESS_KEY || "",
+  },
+  forcePathStyle: true,
+});
+
+const BUCKET = process.env.SELECTEL_BUCKET || "gifpleasure-storage";
 
 export async function DELETE(
   request: NextRequest,
@@ -10,32 +25,17 @@ export async function DELETE(
   try {
     const { id } = params;
 
-    // Удаляем файлы
-    const webpPath = path.join(
-      process.cwd(),
-      "public",
-      "gifs",
-      "webp",
-      `${id}.webp`,
-    );
-    const wmPath = path.join(
-      process.cwd(),
-      "public",
-      "gifs",
-      "webp",
-      `${id}_wm.webp`,
-    );
-    const previewPath = path.join(
-      process.cwd(),
-      "public",
-      "gifs",
-      "preview",
-      `${id}_preview.webp`,
-    );
+    // Удаляем файлы из Selectel
+    const keys = [
+      `webp/${id}.webp`,
+      `webp/${id}_wm.webp`,
+      `preview/${id}_preview.webp`,
+    ];
 
-    if (existsSync(webpPath)) await unlink(webpPath);
-    if (existsSync(wmPath)) await unlink(wmPath);
-    if (existsSync(previewPath)) await unlink(previewPath);
+    for (const key of keys) {
+      const command = new DeleteObjectCommand({ Bucket: BUCKET, Key: key });
+      await s3.send(command);
+    }
 
     // Удаляем из metadata.json
     const metadataPath = path.join(
@@ -57,6 +57,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error("Delete error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
