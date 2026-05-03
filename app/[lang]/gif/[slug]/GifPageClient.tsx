@@ -47,6 +47,31 @@ export default function GifPageClient({
   const [prevGifData, setPrevGifData] = useState<any>(null);
   const [nextGifData, setNextGifData] = useState<any>(null);
 
+  // Состояния для статистики из Supabase
+  const [statsLoaded, setStatsLoaded] = useState(false);
+  const [likes, setLikes] = useState(initialGif.likes || 0);
+  const [views, setViews] = useState(initialGif.views || 0);
+
+  // Загрузка статистики из Supabase
+  useEffect(() => {
+    async function loadStats() {
+      if (!gif?.id) return;
+      try {
+        const res = await fetch(`/api/stats?gifId=${gif.id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setLikes(data.likes);
+          setViews(data.views);
+        }
+      } catch (err) {
+        console.error("Failed to load stats from Supabase:", err);
+      } finally {
+        setStatsLoaded(true);
+      }
+    }
+    loadStats();
+  }, [gif?.id]);
+
   useEffect(() => {
     async function loadData() {
       if (!gif) {
@@ -102,8 +127,8 @@ export default function GifPageClient({
     actress: gif.actress ?? "Amateur",
     category: gif.category ?? "anal",
     tags: gif.tags ?? [],
-    likes: gif.likes ?? 0,
-    views: gif.views ?? 0,
+    likes: statsLoaded ? likes : gif.likes,
+    views: statsLoaded ? views : gif.views,
   };
 
   return (

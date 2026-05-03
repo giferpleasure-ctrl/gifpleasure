@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { getGifUrl } from "@/lib/cloudStorage";
 
 interface SearchProps {
   lang: string;
@@ -72,9 +73,16 @@ export default function Search({ lang }: SearchProps) {
               className="flex items-center gap-3 p-2 hover:bg-border transition"
             >
               <img
-                src={`/gifs/preview/${gif.id}_preview.webp`}
+                src={getGifUrl(`preview/${gif.id}_preview.webp`)}
                 alt=""
                 className="w-10 h-10 object-cover rounded"
+                onError={(e) => {
+                  // Fallback для локальной разработки (если облако недоступно)
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== `/gifs/preview/${gif.id}_preview.webp`) {
+                    target.src = `/gifs/preview/${gif.id}_preview.webp`;
+                  }
+                }}
               />
               <div className="flex-1 min-w-0">
                 <div className="text-sm truncate">

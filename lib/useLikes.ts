@@ -2,43 +2,38 @@
 
 import { useState, useEffect } from "react";
 
-export function useLikes(gifId: string) {
-  const [likes, setLikes] = useState(0);
+export function useLikes(gifId: string, initialLikes: number = 0) {
+  const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // Загружаем лайки при монтировании
+  // Загружаем статус лайка из localStorage
   useEffect(() => {
-    try {
-      // Загружаем количество лайков из глобального хранилища (изначально из metadata)
-      const storedLikes = localStorage.getItem(`likes_${gifId}`);
-      const storedIsLiked = localStorage.getItem(`isLiked_${gifId}`);
-
-      if (storedLikes !== null) {
-        setLikes(parseInt(storedLikes));
-      }
-
-      setIsLiked(storedIsLiked === "true");
-    } catch (error) {
-      console.error("Failed to load likes:", error);
-    }
+    const liked = localStorage.getItem(`liked_${gifId}`) === "true";
+    setIsLiked(liked);
     setLoaded(true);
   }, [gifId]);
 
-  const toggleLike = () => {
-    if (!loaded) return;
-
-    const newIsLiked = !isLiked;
-    const newLikes = newIsLiked ? likes + 1 : likes - 1;
-
-    setLikes(newLikes);
-    setIsLiked(newIsLiked);
+  const toggleLike = async () => {
+    if (isLiked) return; // Уже лайкнуто — ничего не делаем
 
     try {
-      localStorage.setItem(`likes_${gifId}`, newLikes.toString());
-      localStorage.setItem(`isLiked_${gifId}`, newIsLiked.toString());
-    } catch (error) {
-      console.error("Failed to save like:", error);
+      const res = await fetch("/api/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gifId }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setLikes(data.likes);
+        setIsLiked(true);
+        localStorage.setItem(`liked_${gifId}`, "true");
+      } else {
+        console.error("Like failed:", data.error);
+      }
+    } catch (err) {
+      console.error("Like error:", err);
     }
   };
 
