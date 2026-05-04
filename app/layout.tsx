@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://gifpleasure.com",
   ),
+  alternates: {
+    canonical: "/",
+  },
   title: "GifPleasure - Adult GIFs",
   description: "The best adult GIFs collection",
   icons: {
