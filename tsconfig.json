@@ -25,7 +25,8 @@
     "app/api/gifs/stats/route.ts.bak",
     "app/api/like/route.ts.bak",
     "app/api/stats/route.ts.bak",
-    "app/api/views/route.ts.bak"
+    "app/api/views/route.ts.bak",
+    "app/api/gifs/route.ts.bak"
   ],
   "exclude": ["node_modules"]
 }
