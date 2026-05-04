@@ -1,0 +1,33 @@
+// import { NextRequest, NextResponse } from "next/server";
+// import { supabaseAdmin } from "@/lib/supabase";
+
+// export async function GET(request: NextRequest) {
+//   const gifId = request.nextUrl.searchParams.get("gifId");
+//   if (!gifId) {
+//     return NextResponse.json({ error: "gifId required" }, { status: 400 });
+//   }
+
+//   const normalizedId = gifId.toLowerCase();
+
+//   const { data, error } = await supabaseAdmin
+//     .from("gif_stats")
+//     .select("likes, views")
+//     .eq("gif_id", normalizedId)
+//     .maybeSingle();
+
+//   if (error || !data) {
+//     return NextResponse.json({ likes: 0, views: 0 });
+//   }
+
+//   return NextResponse.json(
+//     { likes: data.likes, views: data.views },
+//     {
+//       headers: {
+//         "Cache-Control":
+//           "no-store, no-cache, must-revalidate, proxy-revalidate",
+//         Pragma: "no-cache",
+//         Expires: "0",
+//       },
+//     },
+//   );
+// }

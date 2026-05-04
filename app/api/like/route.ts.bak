@@ -1,0 +1,45 @@
+// import { NextRequest, NextResponse } from "next/server";
+// import { supabaseAdmin } from "@/lib/supabase";
+
+// export async function POST(request: NextRequest) {
+//   try {
+//     const { gifId } = await request.json();
+//     if (!gifId) {
+//       return NextResponse.json({ error: "gifId required" }, { status: 400 });
+//     }
+
+//     const normalizedId = gifId.toLowerCase();
+
+//     // Получаем текущие лайки
+//     let { data: stats, error: selectError } = await supabaseAdmin
+//       .from("gif_stats")
+//       .select("likes")
+//       .eq("gif_id", normalizedId)
+//       .single();
+
+//     if (selectError && selectError.code !== "PGRST116") {
+//       throw selectError;
+//     }
+
+//     let newLikes = 1;
+//     if (stats) {
+//       newLikes = stats.likes + 1;
+//       await supabaseAdmin
+//         .from("gif_stats")
+//         .update({ likes: newLikes, updated_at: new Date() })
+//         .eq("gif_id", normalizedId);
+//     } else {
+//       await supabaseAdmin
+//         .from("gif_stats")
+//         .insert({ gif_id: normalizedId, likes: 1, views: 0 });
+//     }
+
+//     return NextResponse.json({ likes: newLikes });
+//   } catch (error) {
+//     console.error("Like error:", error);
+//     return NextResponse.json(
+//       { error: "Internal server error" },
+//       { status: 500 },
+//     );
+//   }
+// }

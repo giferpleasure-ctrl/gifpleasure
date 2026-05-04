@@ -16,6 +16,16 @@
     "plugins": [{ "name": "next" }],
     "paths": { "@/*": ["./*"] }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "app/[lang]/popular/page.tsx.bak",
+    "app/api/gifs/stats/route.ts.bak",
+    "app/api/like/route.ts.bak",
+    "app/api/stats/route.ts.bak",
+    "app/api/views/route.ts.bak"
+  ],
   "exclude": ["node_modules"]
 }

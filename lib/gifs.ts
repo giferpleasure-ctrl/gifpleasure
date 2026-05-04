@@ -15,13 +15,44 @@ export interface Gif {
   createdAt: string;
 }
 
-const gifsData = (metadata as any[]).map((item) => ({
-  ...item,
-  actress: item.actress || "Amateur",
-  category: item.category || "anal",
-})) as Gif[];
+// Кэш для статистики из Supabase
+// let statsCache: Record<string, { likes: number; views: number }> = {};
 
-// Генератор псевдослучайных чисел на основе seed
+// Загружает статистику из Supabase
+// async function loadStats(): Promise<
+//   Record<string, { likes: number; views: number }>
+// > {
+//   if (Object.keys(statsCache).length > 0) return statsCache;
+
+//   try {
+//     const baseUrl =
+//       typeof window !== "undefined"
+// ? ""
+//         : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+//     const res = await fetch(`${baseUrl}/api/gifs/stats`);
+//     if (res.ok) {
+//       statsCache = await res.json();
+//       return statsCache;
+//     }
+//   } catch (err) {
+//     console.error("Failed to load gif stats:", err);
+//   }
+//   return {};
+// }
+
+// Получает гифки с актуальной статистикой из Supabase
+// Получает гифки без статистики (только из metadata.json)
+async function getGifsWithStats(): Promise<Gif[]> {
+  const baseGifs = (metadata as any[]).map((item) => ({
+    ...item,
+    actress: item.actress || "Amateur",
+    category: item.category || "anal",
+  })) as Gif[];
+
+  // Просто возвращаем базовые гифки, без подтягивания лайков/просмотров
+  return baseGifs;
+}
+
 function mulberry32(seed: number): () => number {
   return function () {
     let t = (seed += 0x6d2b79f5);
@@ -31,7 +62,6 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-// Перемешивает массив детерминированно на основе seed
 export function shuffleArray<T>(array: T[], seed: number): T[] {
   const shuffled = [...array];
   const rng = mulberry32(seed);
@@ -42,14 +72,13 @@ export function shuffleArray<T>(array: T[], seed: number): T[] {
   return shuffled;
 }
 
-// Обычная сортировка по дате (новые сверху)
 export async function getGifs(): Promise<Gif[]> {
-  return gifsData.sort(
+  const gifs = await getGifsWithStats();
+  return gifs.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
-// Перемешанные гифки на основе seed
 export async function getGifsShuffled(seed: number): Promise<Gif[]> {
   const sorted = await getGifs();
   return shuffleArray(sorted, seed);
@@ -59,21 +88,22 @@ export async function getGifBySlug(
   lang: string,
   slug: string,
 ): Promise<Gif | null> {
+  const allGifs = await getGifsWithStats();
   return (
-    gifsData.find((gif) => gif.slug[lang as keyof typeof gif.slug] === slug) ||
+    allGifs.find((gif) => gif.slug[lang as keyof typeof gif.slug] === slug) ||
     null
   );
 }
 
 export async function getRelatedGifs(
   currentId: string,
-  limit: number = 6,
+  limit: number = 8,
 ): Promise<Gif[]> {
-  const current = gifsData.find((g) => g.id === currentId);
+  const allGifs = await getGifsWithStats();
+  const current = allGifs.find((g) => g.id === currentId);
   if (!current) return [];
 
-  // Считаем количество совпадающих тегов для каждой гифки
-  const withScores = gifsData
+  const withScores = allGifs
     .filter((g) => g.id !== currentId)
     .map((g) => {
       const matchCount = g.tags.filter((tag) =>
@@ -81,12 +111,10 @@ export async function getRelatedGifs(
       ).length;
       return { gif: g, score: matchCount };
     })
-    .filter((item) => item.score > 0); // Только гифки с хотя бы одним общим тегом
+    .filter((item) => item.score > 0);
 
-  // Сортируем по убыванию количества совпадений
   withScores.sort((a, b) => b.score - a.score);
 
-  // Перемешиваем гифки с одинаковым счётом, чтобы избежать повторений
   const groupedByScore = new Map<number, typeof withScores>();
   for (const item of withScores) {
     if (!groupedByScore.has(item.score)) {
@@ -97,7 +125,6 @@ export async function getRelatedGifs(
 
   const shuffledResults: Gif[] = [];
   for (const [_, group] of groupedByScore) {
-    // Перемешиваем внутри группы
     for (let i = group.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [group[i], group[j]] = [group[j], group[i]];
@@ -105,6 +132,5 @@ export async function getRelatedGifs(
     shuffledResults.push(...group.map((item) => item.gif));
   }
 
-  // Берём первые `limit` гифок
   return shuffledResults.slice(0, limit);
 }

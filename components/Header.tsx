@@ -31,9 +31,9 @@ export default function Header({ lang }: { lang: string }) {
             <Link href={href} className="hover:text-accent">
               Home
             </Link>
-            <Link href={`/${lang}/popular`} className="hover:text-accent">
+            {/* <Link href={`/${lang}/popular`} className="hover:text-accent">
               Popular
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

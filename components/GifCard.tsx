@@ -58,7 +58,7 @@ export default function GifCard({ gif, lang, priority = false }: GifCardProps) {
         </div>
         <div className="p-2">
           <div className="flex justify-between items-center text-sm">
-            <span>❤️ {gif.likes}</span>
+            {/* <span>❤️ {gif.likes}</span> */}
             <div className="flex gap-1 text-xs text-textDim">
               {gif.tags.slice(0, 2).map((tag: string) => (
                 <span key={tag}>#{formatTag(tag)}</span>
@@ -96,7 +96,7 @@ export default function GifCard({ gif, lang, priority = false }: GifCardProps) {
         </div>
         <div className="p-2">
           <div className="flex justify-between items-center text-sm">
-            <button
+            {/* <button
               className="hover:text-accent transition"
               onClick={(e) => {
                 e.preventDefault();
@@ -104,7 +104,7 @@ export default function GifCard({ gif, lang, priority = false }: GifCardProps) {
               }}
             >
               ❤️ {gif.likes}
-            </button>
+            </button> */}
             <div className="flex gap-1 text-xs text-textDim">
               {gif.tags.slice(0, 2).map((tag: string) => (
                 <Link
@@ -155,8 +155,8 @@ export default function GifCard({ gif, lang, priority = false }: GifCardProps) {
         </div>
       </Link>
       <div className="p-2">
-        <div className="flex justify-between items-center text-sm">
-          <button
+        <div className="flex justify-end items-center text-sm">
+          {/* <button
             className="hover:text-accent transition"
             onClick={(e) => {
               e.preventDefault();
@@ -164,7 +164,7 @@ export default function GifCard({ gif, lang, priority = false }: GifCardProps) {
             }}
           >
             ❤️ {gif.likes}
-          </button>
+          </button> */}
           <div className="flex gap-1 text-xs text-textDim">
             {gif.tags.slice(0, 2).map((tag: string) => (
               <Link

@@ -1,0 +1,24 @@
+// import { NextResponse } from "next/server";
+// import { supabaseAdmin } from "@/lib/supabase";
+
+// export async function GET() {
+//   const { data, error } = await supabaseAdmin
+//     .from("gif_stats")
+//     .select("gif_id, likes, views");
+
+//   if (error) {
+//     console.error("Failed to fetch gif stats:", error);
+//     return NextResponse.json(
+//       { error: "Internal server error" },
+//       { status: 500 },
+//     );
+//   }
+
+//   // Превращаем массив в объект { gif_id: { likes, views } }
+//   const statsMap: Record<string, { likes: number; views: number }> = {};
+//   for (const item of data) {
+//     statsMap[item.gif_id] = { likes: item.likes, views: item.views };
+//   }
+
+//   return NextResponse.json(statsMap);
+// }

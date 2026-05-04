@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useLikes } from "@/lib/useLikes";
 import { formatCategory, formatTag } from "@/lib/format";
 import { getGifUrl } from "@/lib/cloudStorage";
 
 interface GifInteractionsProps {
   gifId: string;
   wmUrl: string;
-  initialLikes: number;
   initialViews: number;
   tags: string[];
   lang: string;
@@ -22,7 +20,6 @@ interface GifInteractionsProps {
 export default function GifInteractions({
   gifId,
   wmUrl,
-  initialLikes,
   initialViews,
   tags,
   lang,
@@ -31,16 +28,41 @@ export default function GifInteractions({
   prevGif,
   nextGif,
 }: GifInteractionsProps) {
-  const { likes, isLiked, toggleLike, loaded } = useLikes(gifId);
+  // const [likes, setLikes] = useState(0);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  // const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     setIsMobile(/iPhone|iPad|Android/i.test(navigator.userAgent));
   }, []);
 
-  const displayLikes = loaded ? likes : initialLikes;
+  // Загружаем актуальное количество лайков из БД
+  // useEffect(() => {
+  //   fetch(`/api/stats?gifId=${gifId}`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       console.log("🔄 Загружены лайки из БД:", data.likes);
+  //       setLikes(data.likes);
+  //     })
+  //     .catch(console.error);
+  // }, [gifId]);
+
+  // const handleLike = () => {
+  //   fetch("/api/like", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ gifId }),
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       console.log("👍 Новое количество лайков:", data.likes);
+  //       setLikes(data.likes);
+  //       setIsLiked(true);
+  //     })
+  //     .catch(console.error);
+  // };
 
   const handleCopy = async () => {
     const url = window.location.href;
@@ -120,22 +142,26 @@ export default function GifInteractions({
       {isMobile && <MobileNavigation />}
 
       <div className="flex flex-wrap gap-3 justify-between items-center mb-6">
-        <button
-          onClick={toggleLike}
-          className={`px-6 py-2 rounded-full transition ${
+        {/* <button
+          onClick={handleLike}
+          className={`px-6 py-2 rounded-full transition min-w-[150px] ${
             isLiked
               ? "bg-likeButton text-white"
               : "bg-card border border-border hover:border-accent"
           }`}
         >
-          {isLiked ? "❤️ Liked" : "❤️ Like"} ({displayLikes})
-        </button>
+          ❤️ Like {likes}
+        </button> */}
 
-        <div className="text-sm text-textDim">👁️ {initialViews} views</div>
+        {/* <div className="text-sm text-textDim">👁️ {initialViews} views</div> */}
+        {!isMobile && (
+          <div className="px-6 py-2 rounded-full transition min-w-[150px] bg-likeButton text-white">
+            Enjoy this GIF!
+          </div>
+        )}
 
         {!isMobile && <DesktopNavigation />}
 
-        {/* Кнопка Download: на мобиле — отдельная строка во всю ширину */}
         {isMobile ? (
           <div className="w-full">
             <a

@@ -2,40 +2,27 @@
 
 import { useState, useEffect } from "react";
 
-export function useLikes(gifId: string, initialLikes: number = 0) {
-  const [likes, setLikes] = useState(initialLikes);
+export function useLikes(gifId: string) {
+  const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [loaded, setLoaded] = useState(false);
 
-  // Загружаем статус лайка из localStorage
   useEffect(() => {
-    const liked = localStorage.getItem(`liked_${gifId}`) === "true";
-    setIsLiked(liked);
-    setLoaded(true);
+    fetch(`/api/stats?gifId=${gifId}`)
+      .then((res) => res.json())
+      .then((data) => setLikes(data.likes))
+      .catch(console.error);
   }, [gifId]);
 
-  const toggleLike = async () => {
-    if (isLiked) return; // Уже лайкнуто — ничего не делаем
-
-    try {
-      const res = await fetch("/api/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gifId }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        setLikes(data.likes);
-        setIsLiked(true);
-        localStorage.setItem(`liked_${gifId}`, "true");
-      } else {
-        console.error("Like failed:", data.error);
-      }
-    } catch (err) {
-      console.error("Like error:", err);
-    }
+  const toggleLike = () => {
+    fetch("/api/like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gifId }),
+    })
+      .then((res) => res.json())
+      .then((data) => setLikes(data.likes))
+      .catch(console.error);
   };
 
-  return { likes, isLiked, toggleLike, loaded };
+  return { likes, isLiked, toggleLike };
 }

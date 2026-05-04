@@ -18,21 +18,15 @@ interface GifPageClientProps {
   initialGif: any;
 }
 
-// Компонент счётчика просмотров
+// Компонент счётчика просмотров (временно отключён)
 function ViewTracker({ gifId }: { gifId: string }) {
-  useEffect(() => {
-    console.log("🔍 ViewTracker gifId:", gifId);
-
-    const key = `viewed_${gifId}`;
-    if (!sessionStorage.getItem(key)) {
-      fetch("/api/views", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gifId }),
-      });
-      sessionStorage.setItem(key, "true");
-    }
-  }, [gifId]);
+  // useEffect(() => {
+  //   fetch("/api/views", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ gifId }),
+  //   });
+  // }, [gifId]);
   return null;
 }
 
@@ -47,30 +41,24 @@ export default function GifPageClient({
   const [prevGifData, setPrevGifData] = useState<any>(null);
   const [nextGifData, setNextGifData] = useState<any>(null);
 
-  // Состояния для статистики из Supabase
-  const [statsLoaded, setStatsLoaded] = useState(false);
-  const [likes, setLikes] = useState(initialGif.likes || 0);
-  const [views, setViews] = useState(initialGif.views || 0);
+  // const [views, setViews] = useState(initialGif.views || 0);
 
-  // Загрузка статистики из Supabase
-  useEffect(() => {
-    async function loadStats() {
-      if (!gif?.id) return;
-      try {
-        const res = await fetch(`/api/stats?gifId=${gif.id}`);
-        const data = await res.json();
-        if (res.ok) {
-          setLikes(data.likes);
-          setViews(data.views);
-        }
-      } catch (err) {
-        console.error("Failed to load stats from Supabase:", err);
-      } finally {
-        setStatsLoaded(true);
-      }
-    }
-    loadStats();
-  }, [gif?.id]);
+  // Загрузка просмотров (временно отключена)
+  // useEffect(() => {
+  //   async function loadViews() {
+  //     if (!gif?.id) return;
+  //     try {
+  //       const res = await fetch(`/api/stats?gifId=${gif.id}`);
+  //       const data = await res.json();
+  //       if (res.ok && data.views !== undefined) {
+  //         setViews(data.views);
+  //       }
+  //     } catch (err) {
+  //       console.error("Failed to load views:", err);
+  //     }
+  //   }
+  //   loadViews();
+  // }, [gif?.id]);
 
   useEffect(() => {
     async function loadData() {
@@ -127,8 +115,7 @@ export default function GifPageClient({
     actress: gif.actress ?? "Amateur",
     category: gif.category ?? "anal",
     tags: gif.tags ?? [],
-    likes: statsLoaded ? likes : gif.likes,
-    views: statsLoaded ? views : gif.views,
+    // views: views,  // временно отключено
   };
 
   return (
@@ -147,8 +134,7 @@ export default function GifPageClient({
       <GifInteractions
         gifId={safeGif.id}
         wmUrl={getGifUrl(`webp/${safeGif.id}_wm.webp`)}
-        initialLikes={safeGif.likes}
-        initialViews={safeGif.views}
+        initialViews={0}
         tags={safeGif.tags}
         lang={params.lang}
         actress={safeGif.actress}
@@ -162,9 +148,6 @@ export default function GifPageClient({
           {safeGif.description[params.lang]}
         </p>
       </div>
-
-      {/* Блок перед похожими гифками */}
-      {/* <ContentBlock /> */}
 
       {related.length > 0 && (
         <>
