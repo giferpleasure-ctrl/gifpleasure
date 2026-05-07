@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getGifs } from "@/lib/gifs";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://gifpleasure.com"; // Замени на свой домен позже
+  const baseUrl = "https://gifpleasure.com";
   const gifs = await getGifs();
 
   // Основные статические страницы
@@ -12,6 +12,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 1.0,
+      alternates: {
+        languages: {
+          en: `${baseUrl}/en`,
+          "x-default": `${baseUrl}/en`,
+        },
+      },
     },
   ];
 
@@ -21,6 +27,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(gif.createdAt),
     changeFrequency: "monthly" as const,
     priority: 0.8,
+    alternates: {
+      languages: {
+        en: `${baseUrl}/en/gif/${gif.slug.en}`,
+        "x-default": `${baseUrl}/en/gif/${gif.slug.en}`,
+      },
+    },
   }));
 
   // Получаем уникальные теги
@@ -34,6 +46,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
+    alternates: {
+      languages: {
+        en: `${baseUrl}/en/tag/${tag}`,
+        "x-default": `${baseUrl}/en/tag/${tag}`,
+      },
+    },
   }));
 
   // Получаем уникальные актрисы
@@ -49,6 +67,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
+    alternates: {
+      languages: {
+        en: `${baseUrl}/en/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
+        "x-default": `${baseUrl}/en/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
+      },
+    },
   }));
 
   // Получаем уникальные категории
@@ -64,6 +88,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
+    alternates: {
+      languages: {
+        en: `${baseUrl}/en/category/${category}`,
+        "x-default": `${baseUrl}/en/category/${category}`,
+      },
+    },
   }));
 
   return [
