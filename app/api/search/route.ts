@@ -6,7 +6,6 @@ import { existsSync } from "fs";
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const query = searchParams.get("q")?.toLowerCase() || "";
-  const lang = searchParams.get("lang") || "en";
 
   if (query.length < 2) {
     return NextResponse.json([]);
@@ -26,12 +25,11 @@ export async function GET(request: NextRequest) {
   const gifs = JSON.parse(fileContent);
 
   const filtered = gifs.filter((gif: any) => {
-    const title = (gif.title[lang] || gif.title.en || "").toLowerCase();
+    const title = (gif.title.en || "").toLowerCase();
     const tags = gif.tags.some((tag: string) =>
       tag.toLowerCase().includes(query),
     );
     const actress = (gif.actress || "").toLowerCase().includes(query);
-
     return title.includes(query) || tags || actress;
   });
 

@@ -5,11 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { getGifUrl } from "@/lib/cloudStorage";
 
-interface SearchProps {
-  lang: string;
-}
-
-export default function Search({ lang }: SearchProps) {
+export default function Search() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -38,9 +34,7 @@ export default function Search({ lang }: SearchProps) {
       return;
     }
 
-    const res = await fetch(
-      `/api/search?q=${encodeURIComponent(value)}&lang=${lang}`,
-    );
+    const res = await fetch(`/api/search?q=${encodeURIComponent(value)}`);
     const data = await res.json();
     setResults(data);
     setShowResults(true);
@@ -48,7 +42,7 @@ export default function Search({ lang }: SearchProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && query.length >= 2) {
-      router.push(`/${lang}/search?q=${encodeURIComponent(query)}`);
+      router.push(`/search?q=${encodeURIComponent(query)}`);
       setShowResults(false);
     }
   };
@@ -68,7 +62,7 @@ export default function Search({ lang }: SearchProps) {
           {results.map((gif: any) => (
             <Link
               key={gif.id}
-              href={`/${lang}/gif/${gif.slug[lang] || gif.slug.en}`}
+              href={`/gif/${gif.slug.en}`}
               onClick={() => setShowResults(false)}
               className="flex items-center gap-3 p-2 hover:bg-border transition"
             >
@@ -77,7 +71,6 @@ export default function Search({ lang }: SearchProps) {
                 alt=""
                 className="w-10 h-10 object-cover rounded"
                 onError={(e) => {
-                  // Fallback для локальной разработки (если облако недоступно)
                   const target = e.target as HTMLImageElement;
                   if (target.src !== `/gifs/preview/${gif.id}_preview.webp`) {
                     target.src = `/gifs/preview/${gif.id}_preview.webp`;
@@ -85,9 +78,7 @@ export default function Search({ lang }: SearchProps) {
                 }}
               />
               <div className="flex-1 min-w-0">
-                <div className="text-sm truncate">
-                  {gif.title[lang] || gif.title.en}
-                </div>
+                <div className="text-sm truncate">{gif.title.en}</div>
                 <div className="text-xs text-textDim truncate">
                   {gif.tags.slice(0, 2).join(", ")}
                 </div>

@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
     metadata.push(newEntry);
     await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 
-    return NextResponse.json({ success: true, id, url: `/en/gif/${id}` });
+    return NextResponse.json({ success: true, id, url: `/gif/${id}` });
   } catch (error: any) {
     console.error("Upload error:", error);
     return NextResponse.json(

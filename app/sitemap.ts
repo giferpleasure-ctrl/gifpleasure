@@ -8,31 +8,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Основные статические страницы
   const staticPages = [
     {
-      url: `${baseUrl}/en`,
+      url: `${baseUrl}`,
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 1.0,
-      alternates: {
-        languages: {
-          en: `${baseUrl}/en`,
-          "x-default": `${baseUrl}/en`,
-        },
-      },
     },
   ];
 
   // Генерируем страницы гифок
   const gifPages = gifs.map((gif) => ({
-    url: `${baseUrl}/en/gif/${gif.slug.en}`,
+    url: `${baseUrl}/gif/${gif.slug.en}`,
     lastModified: new Date(gif.createdAt),
     changeFrequency: "monthly" as const,
     priority: 0.8,
-    alternates: {
-      languages: {
-        en: `${baseUrl}/en/gif/${gif.slug.en}`,
-        "x-default": `${baseUrl}/en/gif/${gif.slug.en}`,
-      },
-    },
   }));
 
   // Получаем уникальные теги
@@ -42,16 +30,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const tagPages = Array.from(tags).map((tag) => ({
-    url: `${baseUrl}/en/tag/${tag}`,
+    url: `${baseUrl}/tag/${tag}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
-    alternates: {
-      languages: {
-        en: `${baseUrl}/en/tag/${tag}`,
-        "x-default": `${baseUrl}/en/tag/${tag}`,
-      },
-    },
   }));
 
   // Получаем уникальные актрисы
@@ -63,16 +45,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const actressPages = Array.from(actresses).map((actress) => ({
-    url: `${baseUrl}/en/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
+    url: `${baseUrl}/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
-    alternates: {
-      languages: {
-        en: `${baseUrl}/en/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
-        "x-default": `${baseUrl}/en/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
-      },
-    },
   }));
 
   // Получаем уникальные категории
@@ -84,16 +60,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const categoryPages = Array.from(categories).map((category) => ({
-    url: `${baseUrl}/en/category/${category}`,
+    url: `${baseUrl}/category/${category}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
-    alternates: {
-      languages: {
-        en: `${baseUrl}/en/category/${category}`,
-        "x-default": `${baseUrl}/en/category/${category}`,
-      },
-    },
   }));
 
   return [

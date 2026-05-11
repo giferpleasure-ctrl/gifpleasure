@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifGrid from "@/components/GifGrid";
 import { Metadata } from "next";
-import { Locale } from "@/lib/types";
 import { readFile } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
@@ -11,7 +10,6 @@ import { shuffleArray } from "@/lib/shuffle";
 
 interface CategoryPageProps {
   params: {
-    lang: Locale;
     name: string;
   };
 }
@@ -57,12 +55,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} in {displayName}
         </p>
       </div>
-      <GifGrid
-        gifs={shuffledGifs}
-        lang={params.lang}
-        firstPosition={7}
-        interval={9}
-      />
+      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={9} />
     </div>
   );
 }

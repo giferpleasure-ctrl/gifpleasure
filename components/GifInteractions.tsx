@@ -10,7 +10,6 @@ interface GifInteractionsProps {
   wmUrl: string;
   initialViews: number;
   tags: string[];
-  lang: string;
   actress?: string;
   category?: string;
   prevGif?: { id: string; slug: string } | null;
@@ -22,47 +21,18 @@ export default function GifInteractions({
   wmUrl,
   initialViews,
   tags,
-  lang,
   actress,
   category,
   prevGif,
   nextGif,
 }: GifInteractionsProps) {
-  // const [likes, setLikes] = useState(0);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  // const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     setIsMobile(/iPhone|iPad|Android/i.test(navigator.userAgent));
   }, []);
-
-  // Загружаем актуальное количество лайков из БД
-  // useEffect(() => {
-  //   fetch(`/api/stats?gifId=${gifId}`)
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       console.log("🔄 Загружены лайки из БД:", data.likes);
-  //       setLikes(data.likes);
-  //     })
-  //     .catch(console.error);
-  // }, [gifId]);
-
-  // const handleLike = () => {
-  //   fetch("/api/like", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ gifId }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       console.log("👍 Новое количество лайков:", data.likes);
-  //       setLikes(data.likes);
-  //       setIsLiked(true);
-  //     })
-  //     .catch(console.error);
-  // };
 
   const handleCopy = async () => {
     const url = window.location.href;
@@ -79,7 +49,7 @@ export default function GifInteractions({
     <div className="flex justify-between items-center gap-2 mb-6">
       {prevGif ? (
         <Link
-          href={`/${lang}/gif/${prevGif.slug}`}
+          href={`/gif/${prevGif.slug}`}
           className="bg-card border border-border hover:border-accent px-4 py-2 rounded-full text-sm transition"
         >
           ← Previous
@@ -95,7 +65,7 @@ export default function GifInteractions({
       </button>
       {nextGif ? (
         <Link
-          href={`/${lang}/gif/${nextGif.slug}`}
+          href={`/gif/${nextGif.slug}`}
           className="bg-card border border-border hover:border-accent px-4 py-2 rounded-full text-sm transition"
         >
           Next →
@@ -110,7 +80,7 @@ export default function GifInteractions({
     <div className="flex gap-2">
       {prevGif ? (
         <Link
-          href={`/${lang}/gif/${prevGif.slug}`}
+          href={`/gif/${prevGif.slug}`}
           className="bg-card border border-border hover:border-accent px-3 py-1.5 rounded-full text-sm transition"
         >
           ← Prev
@@ -126,7 +96,7 @@ export default function GifInteractions({
       </button>
       {nextGif ? (
         <Link
-          href={`/${lang}/gif/${nextGif.slug}`}
+          href={`/gif/${nextGif.slug}`}
           className="bg-card border border-border hover:border-accent px-3 py-1.5 rounded-full text-sm transition"
         >
           Next →
@@ -142,18 +112,6 @@ export default function GifInteractions({
       {isMobile && <MobileNavigation />}
 
       <div className="flex flex-wrap gap-3 justify-between items-center mb-6">
-        {/* <button
-          onClick={handleLike}
-          className={`px-6 py-2 rounded-full transition min-w-[150px] ${
-            isLiked
-              ? "bg-likeButton text-white"
-              : "bg-card border border-border hover:border-accent"
-          }`}
-        >
-          ❤️ Like {likes}
-        </button> */}
-
-        {/* <div className="text-sm text-textDim">👁️ {initialViews} views</div> */}
         {!isMobile && (
           <div className="px-6 py-2 rounded-full transition min-w-[150px] bg-likeButton text-white">
             Enjoy this GIF!
@@ -236,7 +194,7 @@ export default function GifInteractions({
           <div>
             <span className="text-text">Actress:</span>{" "}
             <Link
-              href={`/${lang}/actress/${actress.toLowerCase().replace(/ /g, "-")}`}
+              href={`/actress/${actress.toLowerCase().replace(/ /g, "-")}`}
               className="text-accent hover:underline"
             >
               {actress}
@@ -247,7 +205,7 @@ export default function GifInteractions({
           <div>
             <span className="text-text">Category:</span>{" "}
             <Link
-              href={`/${lang}/category/${category}`}
+              href={`/category/${category}`}
               className="text-accent hover:underline"
             >
               {formatCategory(category)}
@@ -260,7 +218,7 @@ export default function GifInteractions({
         {tags.map((tag: string) => (
           <Link
             key={tag}
-            href={`/${lang}/tag/${tag}`}
+            href={`/tag/${tag}`}
             className="bg-card text-textDim hover:text-accent px-3 py-1 rounded-full text-sm transition"
           >
             #{formatTag(tag)}

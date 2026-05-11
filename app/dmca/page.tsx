@@ -1,13 +1,7 @@
+// app/dmca/page.tsx
 import { Metadata } from "next";
-import { Locale } from "@/lib/types";
 
-interface DMCAPageProps {
-  params: { lang: Locale };
-}
-
-export async function generateMetadata({
-  params,
-}: DMCAPageProps): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "DMCA Notice | GifPleasure",
     description: "Copyright infringement notification and DMCA policy.",

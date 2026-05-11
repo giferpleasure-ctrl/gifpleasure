@@ -2,63 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { getRelatedGifs, getGifs } from "@/lib/gifs";
-import { getDictionary } from "@/lib/i18n/getDictionary";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Locale } from "@/lib/types";
 import GifInteractions from "@/components/GifInteractions";
-// import ContentBlock from "@/components/ContentBlock";
 import { getGifUrl } from "@/lib/cloudStorage";
 
 interface GifPageClientProps {
-  params: {
-    lang: Locale;
-    slug: string;
-  };
   initialGif: any;
 }
 
 // Компонент счётчика просмотров (временно отключён)
 function ViewTracker({ gifId }: { gifId: string }) {
-  // useEffect(() => {
-  //   fetch("/api/views", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ gifId }),
-  //   });
-  // }, [gifId]);
   return null;
 }
 
-export default function GifPageClient({
-  params,
-  initialGif,
-}: GifPageClientProps) {
+export default function GifPageClient({ initialGif }: GifPageClientProps) {
   const [gif, setGif] = useState<any>(initialGif);
   const [loading, setLoading] = useState(false);
   const [related, setRelated] = useState<any[]>([]);
-  const [dict, setDict] = useState<any>(null);
   const [prevGifData, setPrevGifData] = useState<any>(null);
   const [nextGifData, setNextGifData] = useState<any>(null);
-
-  // const [views, setViews] = useState(initialGif.views || 0);
-
-  // Загрузка просмотров (временно отключена)
-  // useEffect(() => {
-  //   async function loadViews() {
-  //     if (!gif?.id) return;
-  //     try {
-  //       const res = await fetch(`/api/stats?gifId=${gif.id}`);
-  //       const data = await res.json();
-  //       if (res.ok && data.views !== undefined) {
-  //         setViews(data.views);
-  //       }
-  //     } catch (err) {
-  //       console.error("Failed to load views:", err);
-  //     }
-  //   }
-  //   loadViews();
-  // }, [gif?.id]);
 
   useEffect(() => {
     async function loadData() {
@@ -81,7 +44,7 @@ export default function GifPageClient({
         prevG
           ? {
               id: prevG.id,
-              slug: prevG.slug[params.lang] || prevG.slug.en,
+              slug: prevG.slug.en,
             }
           : null,
       );
@@ -90,23 +53,20 @@ export default function GifPageClient({
         nextG
           ? {
               id: nextG.id,
-              slug: nextG.slug[params.lang] || nextG.slug.en,
+              slug: nextG.slug.en,
             }
           : null,
       );
 
       const relatedData = await getRelatedGifs(gif.id, 8);
-      const dictData = await getDictionary(params.lang);
-
       setRelated(relatedData);
-      setDict(dictData);
       setLoading(false);
     }
 
     loadData();
-  }, [params.lang, params.slug, gif]);
+  }, [gif]);
 
-  if (loading || !gif || !dict) {
+  if (loading || !gif) {
     return <div className="p-8 text-center">Loading...</div>;
   }
 
@@ -115,7 +75,6 @@ export default function GifPageClient({
     actress: gif.actress ?? "Amateur",
     category: gif.category ?? "anal",
     tags: gif.tags ?? [],
-    // views: views,  // временно отключено
   };
 
   return (
@@ -125,7 +84,7 @@ export default function GifPageClient({
       <div className="relative w-full mb-6 rounded-xl overflow-hidden bg-black">
         <img
           src={getGifUrl(`webp/${safeGif.id}.webp`)}
-          alt={safeGif.title[params.lang]}
+          alt={safeGif.title.en}
           className="w-full h-auto"
           style={{ maxHeight: "70vh", objectFit: "contain" }}
         />
@@ -136,7 +95,6 @@ export default function GifPageClient({
         wmUrl={getGifUrl(`webp/${safeGif.id}_wm.webp`)}
         initialViews={0}
         tags={safeGif.tags}
-        lang={params.lang}
         actress={safeGif.actress}
         category={safeGif.category}
         prevGif={prevGifData}
@@ -144,22 +102,17 @@ export default function GifPageClient({
       />
 
       <div className="bg-card rounded-xl p-6 mb-6">
-        <p className="text-textDim leading-relaxed">
-          {safeGif.description[params.lang]}
-        </p>
+        <p className="text-textDim leading-relaxed">{safeGif.description.en}</p>
       </div>
 
       {related.length > 0 && (
         <>
-          <h2 className="text-xl font-bold mb-4">✨ {dict.gif.related}</h2>
+          <h2 className="text-xl font-bold mb-4">✨ You may also like</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {related.map((g) => {
-              const title = g.title[params.lang] || g.title.en || "Untitled";
+              const title = g.title.en || "Untitled";
               return (
-                <Link
-                  key={g.id}
-                  href={`/${params.lang}/gif/${g.slug[params.lang]}`}
-                >
+                <Link key={g.id} href={`/gif/${g.slug.en}`}>
                   <div className="rounded-lg overflow-hidden bg-card hover:scale-105 transition">
                     <img
                       src={getGifUrl(`preview/${g.id}_preview.webp`)}

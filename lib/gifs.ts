@@ -2,9 +2,9 @@ import metadata from "@/public/gifs/metadata.json";
 
 export interface Gif {
   id: string;
-  slug: { en: string; pt?: string; es?: string };
-  title: { en: string; pt?: string; es?: string };
-  description: { en: string; pt?: string; es?: string };
+  slug: { en: string };
+  title: { en: string };
+  description: { en: string };
   tags: string[];
   actress: string;
   category: string;
@@ -15,32 +15,6 @@ export interface Gif {
   createdAt: string;
 }
 
-// Кэш для статистики из Supabase
-// let statsCache: Record<string, { likes: number; views: number }> = {};
-
-// Загружает статистику из Supabase
-// async function loadStats(): Promise<
-//   Record<string, { likes: number; views: number }>
-// > {
-//   if (Object.keys(statsCache).length > 0) return statsCache;
-
-//   try {
-//     const baseUrl =
-//       typeof window !== "undefined"
-// ? ""
-//         : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-//     const res = await fetch(`${baseUrl}/api/gifs/stats`);
-//     if (res.ok) {
-//       statsCache = await res.json();
-//       return statsCache;
-//     }
-//   } catch (err) {
-//     console.error("Failed to load gif stats:", err);
-//   }
-//   return {};
-// }
-
-// Получает гифки с актуальной статистикой из Supabase
 // Получает гифки без статистики (только из metadata.json)
 async function getGifsWithStats(): Promise<Gif[]> {
   const baseGifs = (metadata as any[]).map((item) => ({
@@ -49,7 +23,6 @@ async function getGifsWithStats(): Promise<Gif[]> {
     category: item.category || "anal",
   })) as Gif[];
 
-  // Просто возвращаем базовые гифки, без подтягивания лайков/просмотров
   return baseGifs;
 }
 
@@ -84,15 +57,9 @@ export async function getGifsShuffled(seed: number): Promise<Gif[]> {
   return shuffleArray(sorted, seed);
 }
 
-export async function getGifBySlug(
-  lang: string,
-  slug: string,
-): Promise<Gif | null> {
+export async function getGifBySlug(slug: string): Promise<Gif | null> {
   const allGifs = await getGifsWithStats();
-  return (
-    allGifs.find((gif) => gif.slug[lang as keyof typeof gif.slug] === slug) ||
-    null
-  );
+  return allGifs.find((gif) => gif.slug.en === slug) || null;
 }
 
 export async function getRelatedGifs(

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Search from "./Search";
 
-export default function Header({ lang }: { lang: string }) {
+export default function Header() {
   const searchParams = useSearchParams();
   const seed = searchParams.get("seed");
-  const href = seed ? `/${lang}?seed=${seed}` : `/${lang}`;
+  const href = seed ? `/?seed=${seed}` : `/`;
 
   return (
     <header className="border-b border-border bg-bg/95 sticky top-0 z-50 backdrop-blur-sm">
@@ -23,7 +23,7 @@ export default function Header({ lang }: { lang: string }) {
 
           {/* Поиск — растягивается */}
           <div className="flex-1 w-full sm:max-w-md md:max-w-xl">
-            <Search lang={lang} />
+            <Search />
           </div>
 
           {/* Навигация */}
@@ -31,7 +31,7 @@ export default function Header({ lang }: { lang: string }) {
             <Link href={href} className="hover:text-accent">
               Home
             </Link>
-            {/* <Link href={`/${lang}/popular`} className="hover:text-accent">
+            {/* <Link href={`/popular`} className="hover:text-accent">
               Popular
             </Link> */}
           </div>

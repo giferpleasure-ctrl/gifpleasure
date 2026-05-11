@@ -1,18 +1,15 @@
 import GifCard from "./GifCard";
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import { insertEmptyItems } from "@/lib/contentInject";
-import { Locale } from "@/lib/types";
 
 interface GifGridProps {
   gifs: any[];
-  lang: Locale;
   firstPosition?: number;
   interval?: number;
 }
 
 export default function GifGrid({
   gifs,
-  lang,
   firstPosition = 7,
   interval = 9,
 }: GifGridProps) {
@@ -25,7 +22,7 @@ export default function GifGrid({
     <div className="masonry-grid">
       {onlyGifs.map((item, idx) => (
         <div key={idx} className="masonry-item">
-          <GifCard gif={item.data} lang={lang} priority={item.data.priority} />
+          <GifCard gif={item.data} priority={item.data.priority} />
         </div>
       ))}
     </div>
@@ -39,7 +36,6 @@ export default function GifGrid({
 //           {item.type === "content" ? (
 //             <GifCard
 //               gif={item.data}
-//               lang={lang}
 //               priority={item.data.priority}
 //             />
 //           ) : (

@@ -1,13 +1,7 @@
+// app/privacy/page.tsx
 import { Metadata } from "next";
-import { Locale } from "@/lib/types";
 
-interface PrivacyPageProps {
-  params: { lang: Locale };
-}
-
-export async function generateMetadata({
-  params,
-}: PrivacyPageProps): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Privacy Policy | GifPleasure",
     description: "Privacy policy and data collection information.",

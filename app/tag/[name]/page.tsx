@@ -3,12 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifGrid from "@/components/GifGrid";
 import { Metadata } from "next";
-import { Locale } from "@/lib/types";
 import { shuffleArray } from "@/lib/shuffle";
 
 interface TagPageProps {
   params: {
-    lang: Locale;
     name: string;
   };
 }
@@ -31,13 +29,10 @@ export async function generateMetadata({
 }
 
 export default async function TagPage({ params }: TagPageProps) {
-  const { lang, name: tagParam } = params;
-  const tag = decodeURIComponent(tagParam);
+  const tag = decodeURIComponent(params.name);
 
-  // Получаем все гифки
   const allGifs = await getGifs();
 
-  // Фильтруем по тегу
   const gifs = allGifs.filter((gif) =>
     gif.tags.some((t) => t.toLowerCase() === tag.toLowerCase()),
   );
@@ -50,7 +45,6 @@ export default async function TagPage({ params }: TagPageProps) {
 
   return (
     <div>
-      {/* SEO-блок */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">#{tag}</h1>
         <p className="text-textDim">
@@ -59,8 +53,7 @@ export default async function TagPage({ params }: TagPageProps) {
         </p>
       </div>
 
-      {/* Сетка гифок с вставкой пустых элементов */}
-      <GifGrid gifs={shuffledGifs} lang={lang} firstPosition={7} interval={9} />
+      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={9} />
     </div>
   );
 }

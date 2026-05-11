@@ -3,12 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifGrid from "@/components/GifGrid";
 import { Metadata } from "next";
-import { Locale } from "@/lib/types";
 import { shuffleArray } from "@/lib/shuffle";
 
 interface ActressPageProps {
   params: {
-    lang: Locale;
     name: string;
   };
 }
@@ -42,12 +40,7 @@ export default async function ActressPage({ params }: ActressPageProps) {
           {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} with {actressName}
         </p>
       </div>
-      <GifGrid
-        gifs={shuffledGifs}
-        lang={params.lang}
-        firstPosition={7}
-        interval={9}
-      />
+      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={9} />
     </div>
   );
 }
