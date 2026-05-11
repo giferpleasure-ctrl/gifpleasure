@@ -1,9 +1,28 @@
+// app/search/page.tsx
 import { getGifs } from "@/lib/gifs";
 import GifGrid from "@/components/GifGrid";
+import { Metadata } from "next";
 import { shuffleArray } from "@/lib/shuffle";
 
 interface SearchPageProps {
   searchParams: { q?: string };
+}
+
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const query = searchParams.q || "";
+  return {
+    title: `Search results for "${query}" | GifPleasure`,
+    description: `Browse ${query} adult GIFs. Free high-quality animated GIFs.`,
+    robots: {
+      index: true,
+      follow: true,
+    },
+    alternates: {
+      canonical: `/search${searchParams.q ? `?q=${encodeURIComponent(searchParams.q)}` : ""}`,
+    },
+  };
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {

@@ -1,3 +1,4 @@
+// app/gif/[slug]/page.tsx
 import { getGifBySlug } from "@/lib/gifs";
 import { Metadata } from "next";
 import GifPageClient from "./GifPageClient";
@@ -25,6 +26,9 @@ export async function generateMetadata({
       title: gif.title.en,
       description: gif.description.en,
       images: [`/gifs/preview/${gif.id}_preview.webp`],
+    },
+    alternates: {
+      canonical: `/gif/${gif.slug.en}`,
     },
     other: {
       rating: "adult",

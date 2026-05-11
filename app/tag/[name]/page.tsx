@@ -1,3 +1,4 @@
+// app/tag/[name]/page.tsx
 import { getGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -11,7 +12,6 @@ interface TagPageProps {
   };
 }
 
-// Генерируем мета-теги для SEO
 export async function generateMetadata({
   params,
 }: TagPageProps): Promise<Metadata> {
@@ -24,6 +24,9 @@ export async function generateMetadata({
     openGraph: {
       title: `#${decodedTag} — Adult GIFs`,
       description: `Collection of #${decodedTag} GIFs`,
+    },
+    alternates: {
+      canonical: `/tag/${tag}`,
     },
   };
 }

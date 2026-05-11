@@ -1,3 +1,4 @@
+// app/category/[name]/page.tsx
 import { getGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -28,6 +29,9 @@ export async function generateMetadata({
   return {
     title: `${category} — Adult GIFs | GifPleasure`,
     description: `Watch the best ${category} adult GIFs. Free high-quality animated GIFs.`,
+    alternates: {
+      canonical: `/category/${category}`,
+    },
   };
 }
 
