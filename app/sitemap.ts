@@ -5,7 +5,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://gifpleasure.com";
   const gifs = await getGifs();
 
-  // Основные статические страницы
   const staticPages = [
     {
       url: `${baseUrl}`,
@@ -15,7 +14,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Генерируем страницы гифок
   const gifPages = gifs.map((gif) => ({
     url: `${baseUrl}/gif/${gif.slug.en}`,
     lastModified: new Date(gif.createdAt),
@@ -23,20 +21,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Получаем уникальные теги
   const tags = new Set<string>();
   gifs.forEach((gif) => {
     gif.tags.forEach((tag) => tags.add(tag));
   });
 
+  // Исправление: заменяем пробелы на дефисы для URL
   const tagPages = Array.from(tags).map((tag) => ({
-    url: `${baseUrl}/tag/${tag}`,
+    url: `${baseUrl}/tag/${tag.replace(/ /g, "-")}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
 
-  // Получаем уникальные актрисы
   const actresses = new Set<string>();
   gifs.forEach((gif) => {
     if (gif.actress && gif.actress !== "Amateur") {
@@ -51,7 +48,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Получаем уникальные категории
   const categories = new Set<string>();
   gifs.forEach((gif) => {
     if (gif.category) {
