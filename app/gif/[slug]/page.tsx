@@ -2,6 +2,7 @@
 import { getGifBySlug } from "@/lib/gifs";
 import { Metadata } from "next";
 import GifPageClient from "./GifPageClient";
+import { getGifUrl } from "@/lib/cloudStorage";
 
 interface GifPageProps {
   params: {
@@ -40,5 +41,24 @@ export default async function GifPage({ params }: GifPageProps) {
   const gif = await getGifBySlug(params.slug);
   if (!gif) return null;
 
-  return <GifPageClient initialGif={gif} />;
+  const imageUrl = getGifUrl(`webp/${gif.id}.webp`);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ImageObject",
+            contentUrl: imageUrl,
+            name: gif.title.en,
+            description: gif.tags.join(", "),
+            uploadDate: gif.createdAt,
+          }),
+        }}
+      />
+      <GifPageClient initialGif={gif} />
+    </>
+  );
 }

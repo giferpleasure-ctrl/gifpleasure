@@ -5,10 +5,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://gifpleasure.com";
   const gifs = await getGifs();
 
+  // Вычисляем дату последнего изменения контента для статичных страниц
+  const lastModifiedDate = gifs.reduce((latest, gif) => {
+    const gifDate = new Date(gif.createdAt).getTime();
+    return gifDate > latest ? gifDate : latest;
+  }, 0);
+  const lastModified = new Date(lastModifiedDate);
+
   const staticPages = [
     {
       url: `${baseUrl}`,
-      lastModified: new Date(),
+      lastModified: lastModified,
       changeFrequency: "daily" as const,
       priority: 1.0,
     },
@@ -26,10 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     gif.tags.forEach((tag) => tags.add(tag));
   });
 
-  // Исправление: заменяем пробелы на дефисы для URL
   const tagPages = Array.from(tags).map((tag) => ({
     url: `${baseUrl}/tag/${tag.replace(/ /g, "-")}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -43,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const actressPages = Array.from(actresses).map((actress) => ({
     url: `${baseUrl}/actress/${actress.toLowerCase().replace(/ /g, "-")}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -57,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryPages = Array.from(categories).map((category) => ({
     url: `${baseUrl}/category/${category}`,
-    lastModified: new Date(),
+    lastModified: lastModified,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -68,5 +74,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...tagPages,
     ...actressPages,
     ...categoryPages,
+    {
+      url: `${baseUrl}/sitemap-images.xml`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
   ];
 }
