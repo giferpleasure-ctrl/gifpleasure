@@ -19,6 +19,8 @@ export async function GET() {
   const imageUrls = gifs
     .map((gif) => {
       const imageLoc = getGifUrl(`webp/${gif.id}.webp`);
+      // Преобразуем дату в ISO 8601 формат (например, 2026-05-19T00:00:00.000Z)
+      const uploadDate = new Date(gif.createdAt).toISOString();
       return `
     <url>
       <loc>${baseUrl}/gif/${gif.slug.en}</loc>
@@ -26,6 +28,7 @@ export async function GET() {
         <image:loc>${escapeXml(imageLoc)}</image:loc>
         <image:title>${escapeXml(gif.title.en)}</image:title>
         <image:caption>${escapeXml(gif.tags.join(", "))}</image:caption>
+        <image:uploadDate>${uploadDate}</image:uploadDate>
       </image:image>
     </url>`;
     })

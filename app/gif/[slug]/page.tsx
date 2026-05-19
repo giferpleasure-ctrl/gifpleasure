@@ -42,6 +42,8 @@ export default async function GifPage({ params }: GifPageProps) {
   if (!gif) return null;
 
   const imageUrl = getGifUrl(`webp/${gif.id}.webp`);
+  // Преобразуем дату в ISO 8601 формат (например, 2026-05-19T00:00:00.000Z)
+  const uploadDate = new Date(gif.createdAt).toISOString();
 
   return (
     <>
@@ -54,7 +56,7 @@ export default async function GifPage({ params }: GifPageProps) {
             contentUrl: imageUrl,
             name: gif.title.en,
             description: gif.tags.join(", "),
-            uploadDate: gif.createdAt,
+            uploadDate: uploadDate,
           }),
         }}
       />
