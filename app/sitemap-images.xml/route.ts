@@ -14,7 +14,7 @@ function escapeXml(unsafe: string): string {
 
 export async function GET() {
   const gifs = await getGifs();
-  const baseUrl = "https://gifpleasure.com";
+  const baseUrl = "https://www.gifpleasure.com";
 
   const imageUrls = gifs
     .map((gif) => {

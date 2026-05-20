@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getGifs } from "@/lib/gifs";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://gifpleasure.com";
+  const baseUrl = "https://www.gifpleasure.com";
   const gifs = await getGifs();
 
   // Вычисляем дату последнего изменения контента для статичных страниц
