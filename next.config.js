@@ -3,10 +3,34 @@ const nextConfig = {
   images: {
     domains: ["localhost"],
   },
+  trailingSlash: false,
+  async redirects() {
+    return [
+      {
+        source: "/actress/:name/",
+        destination: "/actress/:name",
+        permanent: true,
+      },
+      {
+        source: "/category/:name/",
+        destination: "/category/:name",
+        permanent: true,
+      },
+      {
+        source: "/tag/:name/",
+        destination: "/tag/:name",
+        permanent: true,
+      },
+      {
+        source: "/gif/:slug/",
+        destination: "/gif/:slug",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
-        // Кэширование гифок на 1 год
         source: "/gifs/:path*",
         headers: [
           {
@@ -16,7 +40,6 @@ const nextConfig = {
         ],
       },
       {
-        // Кэширование фавикона на 1 день
         source: "/favicon.ico",
         headers: [
           {
