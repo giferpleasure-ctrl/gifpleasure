@@ -8,7 +8,14 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/api/admin"],
+        disallow: [
+          "/admin",
+          "/api",
+          "/*?_rsc=*", // Блокируем все URL с параметром _rsc
+          "/*&_rsc=*", // Блокируем вариант с &
+          "/*.json$", // Блокируем JSON файлы
+          "/*.xml$", // Блокируем XML файлы
+        ],
       },
       {
         userAgent: "Googlebot-Image",
