@@ -6,7 +6,7 @@ const nextConfig = {
   trailingSlash: false,
   async redirects() {
     return [
-      // Существующие редиректы (без слеша)
+      // Редиректы: удаляем слеш в конце URL
       {
         source: "/actress/:name/",
         destination: "/actress/:name",
@@ -27,34 +27,11 @@ const nextConfig = {
         destination: "/gif/:slug",
         permanent: true,
       },
-      // НОВЫЕ РЕДИРЕКТЫ ДЛЯ _rsc (ВАЖНО: СНАЧАЛА КОРЕНЬ, ПОТОМ ВСЕ ПУТИ)
-      {
-        source: "/",
-        has: [
-          {
-            type: "query",
-            key: "_rsc",
-          },
-        ],
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "query",
-            key: "_rsc",
-          },
-        ],
-        destination: "/:path*",
-        permanent: true,
-      },
+      // ВСЕ РЕДИРЕКТЫ ДЛЯ _rsc УДАЛЕНЫ
     ];
   },
   async headers() {
     return [
-      // Существующие заголовки
       {
         source: "/gifs/:path*",
         headers: [
@@ -73,7 +50,7 @@ const nextConfig = {
           },
         ],
       },
-      // НОВЫЙ ЗАГОЛОВОК: ЗАПРЕТ ИНДЕКСАЦИИ ДЛЯ _rsc (ПОДСТРАХОВКА)
+      // Заголовок для _rsc оставлен как дополнительная защита (не вредит)
       {
         source: "/:path*",
         headers: [
