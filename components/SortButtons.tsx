@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
 export default function SortButtons() {
   const router = useRouter();
@@ -9,30 +8,20 @@ export default function SortButtons() {
   const searchParams = useSearchParams();
 
   const currentSort = searchParams.get("sort") || "shuffle";
-  const seed = searchParams.get("seed");
 
   const handleShuffle = () => {
     const newSeed = Math.floor(Math.random() * 1000000);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     params.set("sort", "shuffle");
     params.set("seed", newSeed.toString());
     router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleLatest = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     params.set("sort", "latest");
-    params.delete("seed");
     router.push(`${pathname}?${params.toString()}`);
   };
-
-  // При первой загрузке, если нет параметров, устанавливаем shuffle
-  useEffect(() => {
-    if (!searchParams.has("sort") && !searchParams.has("seed")) {
-      const newSeed = Math.floor(Math.random() * 1000000);
-      router.replace(`${pathname}?sort=shuffle&seed=${newSeed}`);
-    }
-  }, [pathname, router, searchParams]);
 
   return (
     <div className="flex gap-2">

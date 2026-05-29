@@ -37,10 +37,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
   } else {
-    const seed = searchParams.seed
-      ? parseInt(searchParams.seed)
-      : Math.floor(Math.random() * 1000000);
-    gifs = shuffleArray(gifs, seed);
+    // ТОЛЬКО если seed передан явно (через кнопку Shuffle или историю)
+    if (searchParams.seed) {
+      const seed = parseInt(searchParams.seed);
+      gifs = shuffleArray(gifs, seed);
+    } else {
+      // При первом заходе или клике на Home — генерируем случайный порядок,
+      // НО НЕ ДОБАВЛЯЕМ seed В URL!
+      const randomSeed = Math.floor(Math.random() * 1000000);
+      gifs = shuffleArray(gifs, randomSeed);
+    }
   }
 
   return (

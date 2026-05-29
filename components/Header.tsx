@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import Search from "./Search";
 
 export default function Header() {
-  const searchParams = useSearchParams();
-  const seed = searchParams.get("seed");
-  const href = seed ? `/?seed=${seed}` : `/`;
+  // Убираем useSearchParams и seed — ссылка на главную всегда ведёт на /
+  const href = "/";
 
   return (
     <header className="border-b border-border bg-bg/95 sticky top-0 z-50 backdrop-blur-sm">
