@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postbuild": "INDEXNOW_KEY=$INDEXNOW_KEY npx nextjs-indexing-pack"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1041.0",
