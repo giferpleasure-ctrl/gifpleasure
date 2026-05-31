@@ -1,6 +1,7 @@
 import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
+import { getGifUrl } from "@/lib/cloudStorage";
 
 export const metadata: Metadata = {
   title: "All Categories | GifPleasure",
@@ -14,37 +15,53 @@ export const metadata: Metadata = {
 export default async function CategoriesPage() {
   const gifs = await getGifs();
 
-  // Собираем уникальные категории
-  const categoriesSet = new Set<string>();
+  // Создаём Map: категория -> первая гифка
+  const categoryMap = new Map<string, any>();
   gifs.forEach((gif) => {
-    if (gif.category) {
-      categoriesSet.add(gif.category);
+    if (gif.category && !categoryMap.has(gif.category)) {
+      categoryMap.set(gif.category, gif);
     }
   });
 
   // Сортируем по алфавиту
-  const categories = Array.from(categoriesSet).sort((a, b) =>
-    a.localeCompare(b),
+  const categories = Array.from(categoryMap.entries()).sort((a, b) =>
+    a[0].localeCompare(b[0]),
   );
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-6xl mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-4">All Categories</h1>
       <p className="text-textDim mb-8">
         Explore adult GIFs by category. Big ass, anal, blowjob and more — all in
         high quality.
       </p>
 
-      <div className="flex flex-wrap gap-3">
-        {categories.map((category) => (
-          <Link
-            key={category}
-            href={`/category/${category}`}
-            className="bg-card hover:bg-accent/20 text-textDim hover:text-accent px-4 py-2 rounded-full text-sm transition"
-          >
-            {category}
-          </Link>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {categories.map(([name, gif]) => {
+          const previewUrl = getGifUrl(`preview/${gif.id}_preview.webp`);
+
+          return (
+            <Link
+              key={name}
+              href={`/category/${name}`}
+              className="group block bg-card rounded-lg overflow-hidden hover:scale-105 transition"
+            >
+              <div className="aspect-square w-full overflow-hidden bg-black">
+                <img
+                  src={previewUrl}
+                  alt={name}
+                  className="w-full h-full object-cover group-hover:opacity-90 transition"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-3 text-center">
+                <h2 className="text-sm font-medium text-text group-hover:text-accent transition">
+                  {name}
+                </h2>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
