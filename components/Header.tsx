@@ -4,7 +4,6 @@ import Link from "next/link";
 import Search from "./Search";
 
 export default function Header() {
-  // Убираем useSearchParams и seed — ссылка на главную всегда ведёт на /
   const href = "/";
 
   return (
@@ -19,19 +18,25 @@ export default function Header() {
             GifPleasure
           </Link>
 
-          {/* Поиск — растягивается */}
+          {/* Поиск */}
           <div className="flex-1 w-full sm:max-w-md md:max-w-xl">
             <Search />
           </div>
 
-          {/* Навигация */}
+          {/* Навигация — НОВЫЙ ПОРЯДОК */}
           <div className="flex gap-4 text-sm justify-center sm:justify-end">
+            <Link href="/actresses" className="hover:text-accent">
+              Actresses
+            </Link>
+            <Link href="/tags" className="hover:text-accent">
+              Tags
+            </Link>
+            <Link href="/categories" className="hover:text-accent">
+              Categories
+            </Link>
             <Link href={href} className="hover:text-accent">
               Home
             </Link>
-            {/* <Link href={`/popular`} className="hover:text-accent">
-              Popular
-            </Link> */}
           </div>
         </div>
       </div>
