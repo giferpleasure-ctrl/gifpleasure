@@ -9,6 +9,10 @@ export default function Footer() {
         |
         <a href="/privacy" className="hover:text-accent ml-2">
           Privacy Policy
+        </a>{" "}
+        |
+        <a href="/terms" className="hover:text-accent ml-2">
+          Terms of Use
         </a>
       </p>
     </footer>

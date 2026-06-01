@@ -1,6 +1,8 @@
 import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
+import PlaceholderGif from "@/components/PlaceholderGif";
+import PlaceholderContent from "@/components/PlaceholderContent";
 
 export const metadata: Metadata = {
   title: "All Tags | GifPleasure",
@@ -41,6 +43,16 @@ export default async function TagsPage() {
             #{tag}
           </Link>
         ))}
+      </div>
+
+      {/* РЕКЛАМНЫЙ БЛОК ВНИЗУ СТРАНИЦЫ — адаптивный */}
+      <div className="mt-12">
+        <div className="hidden sm:block">
+          <PlaceholderGif />
+        </div>
+        <div className="block sm:hidden">
+          <PlaceholderContent />
+        </div>
       </div>
     </div>
   );

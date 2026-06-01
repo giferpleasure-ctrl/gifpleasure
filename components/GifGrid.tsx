@@ -1,5 +1,5 @@
 import GifCard from "./GifCard";
-import EmptyPlaceholder from "./EmptyPlaceholder";
+import PlaceholderContent from "./PlaceholderContent";
 import { insertEmptyItems } from "@/lib/contentInject";
 
 interface GifGridProps {
@@ -15,34 +15,17 @@ export default function GifGrid({
 }: GifGridProps) {
   const itemsWithEmpty = insertEmptyItems(gifs, firstPosition, interval);
 
-  //когда будет реклама удалить ниже этого комментария и разкомментировать другой return
-  const onlyGifs = itemsWithEmpty.filter((item) => item.type === "content");
-
   return (
     <div className="masonry-grid">
-      {onlyGifs.map((item, idx) => (
+      {itemsWithEmpty.map((item, idx) => (
         <div key={idx} className="masonry-item">
-          <GifCard gif={item.data} priority={item.data.priority} />
+          {item.type === "content" ? (
+            <GifCard gif={item.data} priority={item.data.priority} />
+          ) : (
+            <PlaceholderContent />
+          )}
         </div>
       ))}
     </div>
   );
 }
-
-//   return (
-//     <div className="masonry-grid">
-//       {itemsWithEmpty.map((item, idx) => (
-//         <div key={idx} className="masonry-item">
-//           {item.type === "content" ? (
-//             <GifCard
-//               gif={item.data}
-//               priority={item.data.priority}
-//             />
-//           ) : (
-//             <EmptyPlaceholder />
-//           )}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }

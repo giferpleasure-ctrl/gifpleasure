@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifInteractions from "@/components/GifInteractions";
 import { getGifUrl } from "@/lib/cloudStorage";
+import PlaceholderGif from "@/components/PlaceholderGif";
+import PlaceholderContent from "@/components/PlaceholderContent";
 
 interface GifPageClientProps {
   initialGif: any;
@@ -22,6 +24,16 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
   const [related, setRelated] = useState<any[]>([]);
   const [prevGifData, setPrevGifData] = useState<any>(null);
   const [nextGifData, setNextGifData] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -103,6 +115,11 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
 
       <div className="bg-card rounded-xl p-6 mb-6">
         <p className="text-textDim leading-relaxed">{safeGif.description.en}</p>
+      </div>
+
+      {/* АДАПТИВНЫЙ РЕКЛАМНЫЙ БЛОК */}
+      <div className="my-6">
+        {isMobile ? <PlaceholderContent /> : <PlaceholderGif />}
       </div>
 
       {related.length > 0 && (
