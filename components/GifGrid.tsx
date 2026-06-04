@@ -22,7 +22,7 @@ export default function GifGrid({
           {item.type === "content" ? (
             <GifCard gif={item.data} priority={item.data.priority} />
           ) : (
-            <PlaceholderContent />
+            <PlaceholderContent id={item.id} /> // ← передаём уникальный ID
           )}
         </div>
       ))}

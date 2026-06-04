@@ -2,7 +2,13 @@
 
 import { useEffect, useRef } from "react";
 
-export default function PlaceholderContent() {
+interface PlaceholderContentProps {
+  id?: string; // ← добавляем уникальный ID
+}
+
+export default function PlaceholderContent({
+  id = "default",
+}: PlaceholderContentProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isLoaded = useRef(false);
 
@@ -10,15 +16,17 @@ export default function PlaceholderContent() {
     if (!ref.current || isLoaded.current) return;
     isLoaded.current = true;
 
-    const atOptions = {
-      key: "e5dde221df3915c3a5695be2decfe583", // ← замени на свой ключ для 300×250
+    // Уникальный идентификатор для этого блока
+    const uniqueKey = `atOptions_${id}`;
+
+    // Создаём уникальный объект atOptions для каждого блока
+    (window as any)[uniqueKey] = {
+      key: "e5dde221df3915c3a5695be2decfe583",
       format: "iframe",
       height: 250,
       width: 300,
       params: {},
     };
-
-    (window as any).atOptions = atOptions;
 
     const script = document.createElement("script");
     script.src =
@@ -26,8 +34,11 @@ export default function PlaceholderContent() {
     script.async = true;
     script.setAttribute("data-cfasync", "false");
 
+    // Передаём уникальный ключ скрипту
+    script.setAttribute("data-at-options-var", uniqueKey);
+
     ref.current.appendChild(script);
-  }, []);
+  }, [id]);
 
   return <div ref={ref} className="w-full flex justify-center my-4" />;
 }
