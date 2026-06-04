@@ -1,7 +1,7 @@
 import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
-import { getGifUrl } from "@/lib/cloudStorage";
+import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
 import PlaceholderGif from "@/components/PlaceholderGif";
 import PlaceholderContent from "@/components/PlaceholderContent";
 
@@ -45,7 +45,7 @@ export default async function CategoriesPage() {
       {/* Первые 5 категорий */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {firstFive.map(([name, gif]) => {
-          const previewUrl = getGifUrl(`preview/${gif.id}_preview.webp`);
+          const previewUrl = getGifUrl(gif, "preview"); // ← ИЗМЕНЕНО
 
           return (
             <Link
@@ -55,7 +55,7 @@ export default async function CategoriesPage() {
             >
               <div className="aspect-square w-full overflow-hidden bg-black">
                 <img
-                  src={previewUrl}
+                  src={previewUrl || ""}
                   alt={name}
                   className="w-full h-full object-cover group-hover:opacity-90 transition"
                   loading="lazy"
@@ -84,7 +84,7 @@ export default async function CategoriesPage() {
       {/* Остальные категории */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {rest.map(([name, gif]) => {
-          const previewUrl = getGifUrl(`preview/${gif.id}_preview.webp`);
+          const previewUrl = getGifUrl(gif, "preview"); // ← ИЗМЕНЕНО
 
           return (
             <Link
@@ -94,7 +94,7 @@ export default async function CategoriesPage() {
             >
               <div className="aspect-square w-full overflow-hidden bg-black">
                 <img
-                  src={previewUrl}
+                  src={previewUrl || ""}
                   alt={name}
                   className="w-full h-full object-cover group-hover:opacity-90 transition"
                   loading="lazy"

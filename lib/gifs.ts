@@ -1,5 +1,18 @@
 import metadata from "@/public/gifs/metadata.json";
 
+export interface GifUrls {
+  imgbb?: {
+    clean?: string;
+    wm?: string;
+    preview?: string;
+  };
+  selectel?: {
+    clean?: string;
+    wm?: string;
+    preview?: string;
+  };
+}
+
 export interface Gif {
   id: string;
   slug: { en: string };
@@ -13,6 +26,7 @@ export interface Gif {
   likes: number;
   views: number;
   createdAt: string;
+  urls?: GifUrls; // ← ДОБАВЛЕНО
 }
 
 // Получает гифки без статистики (только из metadata.json)

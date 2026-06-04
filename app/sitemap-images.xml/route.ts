@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGifs } from "@/lib/gifs";
-import { getGifUrl } from "@/lib/cloudStorage";
+import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
 
 function escapeXml(unsafe: string): string {
   if (!unsafe) return "";
@@ -18,8 +18,10 @@ export async function GET() {
 
   const imageUrls = gifs
     .map((gif) => {
-      const imageLoc = getGifUrl(`webp/${gif.id}.webp`);
-      // Преобразуем дату в ISO 8601 формат (например, 2026-05-19T00:00:00.000Z)
+      // Берём основную ссылку (ImgBB → Selectel)
+      const imageLoc = getGifUrl(gif, "clean");
+      if (!imageLoc) return ""; // Пропускаем гифки без ссылок
+
       return `
     <url>
       <loc>${baseUrl}/gif/${gif.slug.en}</loc>
@@ -30,6 +32,7 @@ export async function GET() {
       </image:image>
     </url>`;
     })
+    .filter((url) => url !== "") // Убираем пустые записи
     .join("");
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

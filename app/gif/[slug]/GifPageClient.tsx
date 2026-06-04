@@ -5,7 +5,7 @@ import { getRelatedGifs, getGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifInteractions from "@/components/GifInteractions";
-import { getGifUrl } from "@/lib/cloudStorage";
+import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
 import PlaceholderGif from "@/components/PlaceholderGif";
 import PlaceholderContent from "@/components/PlaceholderContent";
 
@@ -95,7 +95,7 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
 
       <div className="relative w-full mb-6 rounded-xl overflow-hidden bg-black">
         <img
-          src={getGifUrl(`webp/${safeGif.id}.webp`)}
+          src={getGifUrl(safeGif, "clean") || ""}
           alt={safeGif.title.en}
           className="w-full h-auto"
           style={{ maxHeight: "70vh", objectFit: "contain" }}
@@ -104,7 +104,7 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
 
       <GifInteractions
         gifId={safeGif.id}
-        wmUrl={getGifUrl(`webp/${safeGif.id}_wm.webp`)}
+        wmUrl={getGifUrl(safeGif, "wm") || ""}
         initialViews={0}
         tags={safeGif.tags}
         actress={safeGif.actress}
@@ -132,7 +132,7 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
                 <Link key={g.id} href={`/gif/${g.slug.en}`}>
                   <div className="rounded-lg overflow-hidden bg-card hover:scale-105 transition">
                     <img
-                      src={getGifUrl(`preview/${g.id}_preview.webp`)}
+                      src={getGifUrl(g, "preview") || ""}
                       alt={title}
                       className="w-full aspect-video object-cover"
                     />

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { formatTag } from "@/lib/format";
-import { getGifUrl } from "@/lib/cloudStorage";
+import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
 
 interface GifCardProps {
   gif: any;
@@ -49,7 +49,7 @@ export default function GifCard({ gif, priority = false }: GifCardProps) {
           style={{ paddingBottom: `${(gif.height / gif.width) * 100}%` }}
         >
           <img
-            src={getGifUrl(`preview/${gif.id}_preview.webp`)}
+            src={getGifUrl(gif, "preview") || ""}
             alt={gif.title.en}
             className="absolute inset-0 w-full h-full object-cover"
             loading={priority ? "eager" : "lazy"}
@@ -80,8 +80,8 @@ export default function GifCard({ gif, priority = false }: GifCardProps) {
               <img
                 src={
                   isVisible
-                    ? getGifUrl(`webp/${gif.id}.webp`)
-                    : getGifUrl(`preview/${gif.id}_preview.webp`)
+                    ? getGifUrl(gif, "clean") || ""
+                    : getGifUrl(gif, "preview") || ""
                 }
                 alt={gif.title.en}
                 className="absolute inset-0 w-full h-full object-cover"
@@ -124,7 +124,7 @@ export default function GifCard({ gif, priority = false }: GifCardProps) {
             style={{ paddingBottom: `${(gif.height / gif.width) * 100}%` }}
           >
             <img
-              src={getGifUrl(`preview/${gif.id}_preview.webp`)}
+              src={getGifUrl(gif, "preview") || ""}
               alt={gif.title.en}
               className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
               style={{ opacity: isHovered ? 0 : 1 }}
@@ -132,7 +132,7 @@ export default function GifCard({ gif, priority = false }: GifCardProps) {
               fetchPriority={priority ? "high" : "auto"}
             />
             <img
-              src={getGifUrl(`webp/${gif.id}.webp`)}
+              src={getGifUrl(gif, "clean") || ""}
               alt={gif.title.en}
               className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
               style={{ opacity: isHovered ? 1 : 0 }}

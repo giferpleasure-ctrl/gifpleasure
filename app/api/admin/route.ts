@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  S3Client,
-  PutObjectCommand,
-  ListObjectsV2Command,
-} from "@aws-sdk/client-s3";
-import { readFileSync } from "fs";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import path from "path";
 
-// Конфигурация Selectel
+// ========== КОНФИГУРАЦИЯ ==========
 const s3 = new S3Client({
   region: "ru-3",
   endpoint:
@@ -20,8 +16,11 @@ const s3 = new S3Client({
 });
 
 const BUCKET = process.env.SELECTEL_BUCKET || "gifpleasure-storage";
+const IMGBB_API_KEY = "2fdf34b3c3183c7ebc7be2617ad3838c";
+const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
+const LOCAL_BACKUP_DIR = "H:/gifpleasure_archive/gifs";
+// ==================================
 
-// Генерация уникального ID
 function generateId(title: string): string {
   return title
     .toLowerCase()
@@ -29,7 +28,6 @@ function generateId(title: string): string {
     .replace(/^-|-$/g, "");
 }
 
-// Загрузка файла в Selectel
 async function uploadToSelectel(
   buffer: Buffer,
   key: string,
@@ -46,7 +44,48 @@ async function uploadToSelectel(
   return `https://${BUCKET}.selstorage.ru/${key}`;
 }
 
-// GET: получение списка гифок (из metadata.json)
+// Загрузка файла на ImgBB через base64 (исправленная версия)
+async function uploadToImgBB(
+  buffer: Buffer,
+  fileName: string,
+): Promise<string | null> {
+  // Отправляем ТОЛЬКО base64 строку, без префикса
+  const base64 = buffer.toString("base64");
+
+  const params = new URLSearchParams();
+  params.append("key", IMGBB_API_KEY);
+  params.append("image", base64); // ← только base64, без data:image/...
+  params.append("name", fileName);
+
+  try {
+    const response = await fetch(IMGBB_UPLOAD_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+    const result = await response.json();
+    if (result.status === 200) {
+      return result.data.url;
+    } else {
+      console.error("ImgBB upload error:", result);
+      return null;
+    }
+  } catch (error) {
+    console.error("ImgBB upload exception:", error);
+    return null;
+  }
+}
+
+function saveToLocalDisk(buffer: Buffer, filePath: string): void {
+  const dir = path.dirname(filePath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  writeFileSync(filePath, buffer);
+}
+
 export async function GET() {
   try {
     const metadataPath = path.join(
@@ -56,17 +95,14 @@ export async function GET() {
       "metadata.json",
     );
     const { readFile } = await import("fs/promises");
-
     const content = await readFile(metadataPath, "utf-8");
     const metadata = JSON.parse(content);
-
     return NextResponse.json(metadata);
   } catch (error) {
     return NextResponse.json([]);
   }
 }
 
-// POST: добавление новой гифки
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -82,7 +118,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверяем имена файлов
+    // Проверка имён файлов
     const cleanName = cleanFile.name.replace(/\.webp$/i, "");
     const wmName = wmFile.name.replace(/\.webp$/i, "");
     const previewName = previewFile.name.replace(/\.webp$/i, "");
@@ -130,20 +166,54 @@ export async function POST(request: NextRequest) {
 
     const id = generateId(titleEn);
 
-    // Загружаем файлы в Selectel
     const cleanBuffer = Buffer.from(await cleanFile.arrayBuffer());
     const wmBuffer = Buffer.from(await wmFile.arrayBuffer());
     const previewBuffer = Buffer.from(await previewFile.arrayBuffer());
 
-    await uploadToSelectel(cleanBuffer, `webp/${id}.webp`, "image/webp");
-    await uploadToSelectel(wmBuffer, `webp/${id}_wm.webp`, "image/webp");
-    await uploadToSelectel(
+    // 1. Selectel
+    const selectelCleanUrl = await uploadToSelectel(
+      cleanBuffer,
+      `webp/${id}.webp`,
+      "image/webp",
+    );
+    const selectelWmUrl = await uploadToSelectel(
+      wmBuffer,
+      `webp/${id}_wm.webp`,
+      "image/webp",
+    );
+    const selectelPreviewUrl = await uploadToSelectel(
       previewBuffer,
       `preview/${id}_preview.webp`,
       "image/webp",
     );
 
-    // Обновляем metadata.json
+    // 2. ImgBB
+    const imgbbCleanUrl = await uploadToImgBB(cleanBuffer, `${id}.webp`);
+    const imgbbWmUrl = await uploadToImgBB(wmBuffer, `${id}_wm.webp`);
+    const imgbbPreviewUrl = await uploadToImgBB(
+      previewBuffer,
+      `${id}_preview.webp`,
+    );
+
+    if (!imgbbCleanUrl || !imgbbWmUrl || !imgbbPreviewUrl) {
+      console.error("❌ ImgBB upload failed, aborting operation");
+      return NextResponse.json(
+        { error: "Failed to upload to ImgBB. Please try again." },
+        { status: 500 },
+      );
+    }
+
+    // 3. Локальный бэкап
+    try {
+      saveToLocalDisk(cleanBuffer, `${LOCAL_BACKUP_DIR}/${id}.webp`);
+      saveToLocalDisk(wmBuffer, `${LOCAL_BACKUP_DIR}/${id}_wm.webp`);
+      saveToLocalDisk(previewBuffer, `${LOCAL_BACKUP_DIR}/${id}_preview.webp`);
+      console.log(`✅ Local backup saved: ${LOCAL_BACKUP_DIR}/${id}.*`);
+    } catch (error) {
+      console.error("❌ Local backup error:", error);
+    }
+
+    // 4. Metadata
     const metadataPath = path.join(
       process.cwd(),
       "public",
@@ -157,7 +227,7 @@ export async function POST(request: NextRequest) {
       const content = await readFile(metadataPath, "utf-8");
       metadata = JSON.parse(content);
     } catch (e) {
-      // Файла нет
+      // File doesn't exist
     }
 
     const newEntry = {
@@ -173,6 +243,18 @@ export async function POST(request: NextRequest) {
       likes: 0,
       views: 0,
       createdAt: new Date().toISOString().split("T")[0],
+      urls: {
+        imgbb: {
+          clean: imgbbCleanUrl,
+          wm: imgbbWmUrl,
+          preview: imgbbPreviewUrl,
+        },
+        selectel: {
+          clean: selectelCleanUrl,
+          wm: selectelWmUrl,
+          preview: selectelPreviewUrl,
+        },
+      },
     };
 
     metadata.push(newEntry);
