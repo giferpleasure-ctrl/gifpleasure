@@ -56,7 +56,7 @@ export default async function TagPage({ params }: TagPageProps) {
         </p>
       </div>
 
-      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={12} />
+      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={9} />
     </div>
   );
 }

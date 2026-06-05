@@ -57,7 +57,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </h1>
         <SortButtons />
       </div>
-      <GifGrid gifs={gifs} firstPosition={7} interval={12} />
+      <GifGrid gifs={gifs} firstPosition={7} interval={9} />
     </>
   );
 }

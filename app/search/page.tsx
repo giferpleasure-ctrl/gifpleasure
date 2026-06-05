@@ -54,7 +54,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           No GIFs found. Try different keywords.
         </div>
       ) : (
-        <GifGrid gifs={shuffledResults} firstPosition={7} interval={12} />
+        <GifGrid gifs={shuffledResults} firstPosition={7} interval={9} />
       )}
     </div>
   );
