@@ -1,7 +1,7 @@
 import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
-import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
+import { getGifUrl } from "@/lib/getGifUrl";
 import PlaceholderGif from "@/components/PlaceholderGif";
 import PlaceholderContent from "@/components/PlaceholderContent";
 
@@ -30,9 +30,13 @@ export default async function CategoriesPage() {
     a[0].localeCompare(b[0]),
   );
 
-  // Первые 5 категорий
-  const firstFive = categories.slice(0, 5);
-  const rest = categories.slice(5);
+  // На десктопе (5 колонок) баннер после 5 элементов
+  // На мобилке (2 колонки) баннер после 4 элементов
+  const firstRowCountDesktop = 5;
+  const firstRowCountMobile = 4;
+
+  const firstRow = categories.slice(0, firstRowCountDesktop);
+  const rest = categories.slice(firstRowCountDesktop);
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
@@ -42,10 +46,10 @@ export default async function CategoriesPage() {
         high quality.
       </p>
 
-      {/* Первые 5 категорий */}
+      {/* Первые 5 категорий (видно на всех экранах) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {firstFive.map(([name, gif]) => {
-          const previewUrl = getGifUrl(gif, "preview"); // ← ИЗМЕНЕНО
+        {firstRow.map(([name, gif]) => {
+          const previewUrl = getGifUrl(gif, "preview");
 
           return (
             <Link
@@ -71,11 +75,15 @@ export default async function CategoriesPage() {
         })}
       </div>
 
-      {/* РЕКЛАМНЫЙ БЛОК — адаптивный (десктоп 728×90, мобилка 300×250) */}
+      {/* РЕКЛАМНЫЙ БЛОК — позиция зависит от экрана */}
+      {/* На десктопе (≥640px) баннер после первого ряда (5 элементов) */}
+      {/* На мобилке (<640px) баннер после 4 элементов (2 ряда по 2) */}
       <div className="my-8">
+        {/* Десктоп: 728×90 */}
         <div className="hidden sm:block">
           <PlaceholderGif />
         </div>
+        {/* Мобилка: 300×250 */}
         <div className="block sm:hidden">
           <PlaceholderContent />
         </div>
@@ -84,7 +92,7 @@ export default async function CategoriesPage() {
       {/* Остальные категории */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {rest.map(([name, gif]) => {
-          const previewUrl = getGifUrl(gif, "preview"); // ← ИЗМЕНЕНО
+          const previewUrl = getGifUrl(gif, "preview");
 
           return (
             <Link

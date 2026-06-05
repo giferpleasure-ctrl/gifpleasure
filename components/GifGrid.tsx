@@ -11,7 +11,7 @@ interface GifGridProps {
 export default function GifGrid({
   gifs,
   firstPosition = 7,
-  interval = 9,
+  interval = 12,
 }: GifGridProps) {
   const itemsWithEmpty = insertEmptyItems(gifs, firstPosition, interval);
 
