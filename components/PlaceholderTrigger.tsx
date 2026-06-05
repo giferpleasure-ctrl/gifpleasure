@@ -18,8 +18,9 @@ export default function PlaceholderTrigger() {
 
       // Загружаем Popunder скрипт при первом клике
       const script = document.createElement("script");
+      // НОВЫЙ Anti-Adblock URL
       script.src =
-        "https://pl29608555.effectivecpmnetwork.com/c6/4a/57/c64a57ae13934a5a71279088655f28d1.js";
+        "https://reactahead.com/c6/4a/57/c64a57ae13934a5a71279088655f28d1.js";
       script.async = true;
       script.setAttribute("data-cfasync", "false");
       document.body.appendChild(script);
