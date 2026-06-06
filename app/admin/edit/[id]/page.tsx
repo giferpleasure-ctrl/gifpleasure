@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 
+interface ListItem {
+  name: string;
+  count: number;
+}
+
 export default function EditGifPage() {
   const params = useParams();
   const id = params.id as string;
@@ -14,11 +19,14 @@ export default function EditGifPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [error, setError] = useState("");
 
-  // Загружаем категории
+  // Загружаем категории (преобразуем в массив строк)
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((data) => setCategories(data))
+      .then((data: ListItem[]) => {
+        // Извлекаем только name из объектов {name, count}
+        setCategories(data.map((item) => item.name));
+      })
       .catch(console.error);
   }, []);
 

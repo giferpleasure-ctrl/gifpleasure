@@ -4,8 +4,30 @@ import path from "path";
 import { existsSync } from "fs";
 
 const categoriesPath = path.join(process.cwd(), "data", "categories.json");
+const metadataPath = path.join(
+  process.cwd(),
+  "public",
+  "gifs",
+  "metadata.json",
+);
 
-// GET - получить все категории
+async function getCategoryCounts(): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  try {
+    const content = await readFile(metadataPath, "utf-8");
+    const gifs = JSON.parse(content);
+    gifs.forEach((gif: any) => {
+      if (gif.category) {
+        counts.set(gif.category, (counts.get(gif.category) || 0) + 1);
+      }
+    });
+  } catch (e) {
+    console.error("Failed to load metadata for counts:", e);
+  }
+  return counts;
+}
+
+// GET - получить все категории со счётчиками
 export async function GET() {
   try {
     if (!existsSync(categoriesPath)) {
@@ -13,7 +35,14 @@ export async function GET() {
     }
     const content = await readFile(categoriesPath, "utf-8");
     const categories = JSON.parse(content);
-    return NextResponse.json(categories);
+    const counts = await getCategoryCounts();
+
+    const result = categories.map((name: string) => ({
+      name,
+      count: counts.get(name) || 0,
+    }));
+
+    return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to load categories" },

@@ -10,6 +10,9 @@ export default function PlaceholderTrigger() {
     if (hasTriggered.current) return;
 
     const handleFirstClick = () => {
+      // Не срабатываем в админке и на страницах редактирования
+      if (window.location.pathname.startsWith("/admin")) return;
+
       if (hasTriggered.current) return;
       hasTriggered.current = true;
 
@@ -18,7 +21,6 @@ export default function PlaceholderTrigger() {
 
       // Загружаем Popunder скрипт при первом клике
       const script = document.createElement("script");
-      // НОВЫЙ Anti-Adblock URL
       script.src =
         "https://reactahead.com/c6/4a/57/c64a57ae13934a5a71279088655f28d1.js";
       script.async = true;

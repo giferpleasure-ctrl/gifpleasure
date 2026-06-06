@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 interface Gif {
   id: string;
@@ -12,7 +13,13 @@ interface Gif {
   createdAt: string;
 }
 
+interface ListItem {
+  name: string;
+  count: number;
+}
+
 export default function AdminPage() {
+  const searchParams = useSearchParams();
   const [gifs, setGifs] = useState<Gif[]>([]);
   const [filteredGifs, setFilteredGifs] = useState<Gif[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,8 +28,8 @@ export default function AdminPage() {
   const [searchTitle, setSearchTitle] = useState("");
   const [searchActress, setSearchActress] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [actresses, setActresses] = useState<string[]>([]);
+  const [categories, setCategories] = useState<ListItem[]>([]);
+  const [actresses, setActresses] = useState<ListItem[]>([]);
 
   const loadGifs = async () => {
     const res = await fetch("/api/admin");
@@ -30,19 +37,25 @@ export default function AdminPage() {
     setGifs(data);
     setFilteredGifs(data);
 
-    // Собираем уникальные категории и актрисы для фильтров
-    const uniqueCategories = [
-      ...new Set(data.map((g: Gif) => g.category)),
-    ].sort();
-    const uniqueActresses = [
-      ...new Set(
-        data
-          .map((g: Gif) => g.actress)
-          .filter((a: string) => a && a !== "Amateur"),
-      ),
-    ].sort();
-    setCategories(uniqueCategories);
-    setActresses(uniqueActresses);
+    // Загружаем категории и актрис со счётчиками
+    const [catsRes, actsRes] = await Promise.all([
+      fetch("/api/categories"),
+      fetch("/api/actresses"),
+    ]);
+    const catsData: ListItem[] = await catsRes.json();
+    const actsData: ListItem[] = await actsRes.json();
+    setCategories(catsData);
+    setActresses(actsData);
+
+    // Применяем фильтры из URL
+    const actressParam = searchParams.get("actress");
+    const categoryParam = searchParams.get("category");
+    const tagParam = searchParams.get("tag");
+
+    if (actressParam) setSearchActress(actressParam);
+    if (categoryParam) setSearchCategory(categoryParam);
+    if (tagParam) setSearchTitle(tagParam);
+
     setLoading(false);
   };
 
@@ -55,9 +68,18 @@ export default function AdminPage() {
     let filtered = [...gifs];
 
     if (searchTitle) {
-      filtered = filtered.filter((g) =>
-        g.title.en.toLowerCase().includes(searchTitle.toLowerCase()),
-      );
+      const isTagSearch = searchParams.get("tag") !== null;
+      if (isTagSearch) {
+        filtered = filtered.filter((g) =>
+          g.tags.some((tag) =>
+            tag.toLowerCase().includes(searchTitle.toLowerCase()),
+          ),
+        );
+      } else {
+        filtered = filtered.filter((g) =>
+          g.title.en.toLowerCase().includes(searchTitle.toLowerCase()),
+        );
+      }
     }
 
     if (searchActress) {
@@ -73,7 +95,7 @@ export default function AdminPage() {
     }
 
     setFilteredGifs(filtered);
-  }, [searchTitle, searchActress, searchCategory, gifs]);
+  }, [searchTitle, searchActress, searchCategory, gifs, searchParams]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this GIF?")) return;
@@ -118,12 +140,14 @@ export default function AdminPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-textDim mb-1">Title</label>
+            <label className="block text-xs text-textDim mb-1">
+              Title / Tag
+            </label>
             <input
               type="text"
               value={searchTitle}
               onChange={(e) => setSearchTitle(e.target.value)}
-              placeholder="Filter by title..."
+              placeholder="Filter by title or tag..."
               className="w-full border border-border rounded px-3 py-2 bg-bg text-sm"
             />
           </div>
@@ -139,7 +163,7 @@ export default function AdminPage() {
             />
             <datalist id="actress-list">
               {actresses.map((a) => (
-                <option key={a} value={a} />
+                <option key={a.name} value={a.name} />
               ))}
             </datalist>
           </div>
@@ -155,7 +179,7 @@ export default function AdminPage() {
             />
             <datalist id="category-list">
               {categories.map((c) => (
-                <option key={c} value={c} />
+                <option key={c.name} value={c.name} />
               ))}
             </datalist>
           </div>
