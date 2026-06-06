@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -18,7 +18,7 @@ interface ListItem {
   count: number;
 }
 
-export default function AdminPage() {
+function AdminPageContent() {
   const searchParams = useSearchParams();
   const [gifs, setGifs] = useState<Gif[]>([]);
   const [filteredGifs, setFilteredGifs] = useState<Gif[]>([]);
@@ -245,5 +245,13 @@ export default function AdminPage() {
         </table>
       </div>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+      <AdminPageContent />
+    </Suspense>
   );
 }
