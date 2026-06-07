@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PlaceholderTrigger from "@/components/PlaceholderTrigger";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -60,8 +59,6 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Popunder — срабатывает при первом клике */}
-        <PlaceholderTrigger />
       </body>
     </html>
   );
