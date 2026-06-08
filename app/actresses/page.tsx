@@ -2,8 +2,8 @@ import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getGifUrl } from "@/lib/getGifUrl";
-import PlaceholderGif from "@/components/PlaceholderGif";
-import PlaceholderContent from "@/components/PlaceholderContent";
+import TelegramPlaceholder from "@/components/TelegramPlaceholder";
+import TelegramGif from "@/components/TelegramGif";
 
 export const metadata: Metadata = {
   title: "All Actresses | GifPleasure",
@@ -86,11 +86,11 @@ export default async function ActressesPage() {
       <div className="my-8">
         {/* Десктоп: 728×90 */}
         <div className="hidden sm:block">
-          <PlaceholderGif />
+          <TelegramPlaceholder />
         </div>
         {/* Мобилка: 300×250 */}
         <div className="block sm:hidden">
-          <PlaceholderContent />
+          <TelegramGif />
         </div>
       </div>
 

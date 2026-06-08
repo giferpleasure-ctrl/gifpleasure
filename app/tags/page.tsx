@@ -1,8 +1,8 @@
 import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
-import PlaceholderGif from "@/components/PlaceholderGif";
-import PlaceholderContent from "@/components/PlaceholderContent";
+import TelegramPlaceholder from "@/components/TelegramPlaceholder";
+import TelegramGif from "@/components/TelegramGif";
 
 export const metadata: Metadata = {
   title: "All Tags | GifPleasure",
@@ -48,10 +48,10 @@ export default async function TagsPage() {
       {/* РЕКЛАМНЫЙ БЛОК ВНИЗУ СТРАНИЦЫ — адаптивный */}
       <div className="mt-12">
         <div className="hidden sm:block">
-          <PlaceholderGif />
+          <TelegramPlaceholder />
         </div>
         <div className="block sm:hidden">
-          <PlaceholderContent />
+          <TelegramGif />
         </div>
       </div>
     </div>
