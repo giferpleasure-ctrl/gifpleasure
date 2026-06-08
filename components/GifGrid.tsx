@@ -1,6 +1,6 @@
 import GifCard from "./GifCard";
-import PlaceholderContent from "./PlaceholderContent";
 import { insertEmptyItems } from "@/lib/contentInject";
+import TelegramGif from "./TelegramGif";
 
 interface GifGridProps {
   gifs: any[];
@@ -11,7 +11,7 @@ interface GifGridProps {
 export default function GifGrid({
   gifs,
   firstPosition = 7,
-  interval = 9,
+  interval = 12,
 }: GifGridProps) {
   const itemsWithEmpty = insertEmptyItems(gifs, firstPosition, interval);
 
@@ -22,7 +22,7 @@ export default function GifGrid({
           {item.type === "content" ? (
             <GifCard gif={item.data} priority={item.data.priority} />
           ) : (
-            <PlaceholderContent />
+            <TelegramGif />
           )}
         </div>
       ))}

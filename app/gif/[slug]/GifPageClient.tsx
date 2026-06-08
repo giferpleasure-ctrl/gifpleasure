@@ -6,8 +6,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifInteractions from "@/components/GifInteractions";
 import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
-import PlaceholderGif from "@/components/PlaceholderGif";
-import PlaceholderContent from "@/components/PlaceholderContent";
+import TelegramPlaceholder from "@/components/TelegramPlaceholder";
+import TelegramGif from "@/components/TelegramGif";
 
 interface GifPageClientProps {
   initialGif: any;
@@ -119,7 +119,7 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
 
       {/* АДАПТИВНЫЙ РЕКЛАМНЫЙ БЛОК */}
       <div className="my-6">
-        {isMobile ? <PlaceholderContent /> : <PlaceholderGif />}
+        {isMobile ? <TelegramGif /> : <TelegramPlaceholder />}
       </div>
 
       {related.length > 0 && (
