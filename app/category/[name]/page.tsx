@@ -59,7 +59,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} in {displayName}
         </p>
       </div>
-      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={12} />
+      <GifGrid gifs={shuffledGifs} />
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { Metadata } from "next";
 import { getGifUrl } from "@/lib/getGifUrl";
 import TelegramPlaceholder from "@/components/TelegramPlaceholder";
 import TelegramGif from "@/components/TelegramGif";
+import PlaceholderContent from "@/components/PlaceholderContent";
+import PlaceholderGif from "@/components/PlaceholderGif";
 
 export const metadata: Metadata = {
   title: "All Categories | GifPleasure",
@@ -81,11 +83,11 @@ export default async function CategoriesPage() {
       <div className="my-8">
         {/* Десктоп: 728×90 */}
         <div className="hidden sm:block">
-          <TelegramPlaceholder />
+          <PlaceholderContent />
         </div>
         {/* Мобилка: 300×250 */}
         <div className="block sm:hidden">
-          <TelegramGif />
+          <PlaceholderGif />
         </div>
       </div>
 

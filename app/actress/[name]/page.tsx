@@ -44,7 +44,7 @@ export default async function ActressPage({ params }: ActressPageProps) {
           {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} with {actressName}
         </p>
       </div>
-      <GifGrid gifs={shuffledGifs} firstPosition={7} interval={12} />
+      <GifGrid gifs={shuffledGifs} />
     </div>
   );
 }
