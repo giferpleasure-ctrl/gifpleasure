@@ -4,10 +4,9 @@ import { useEffect, useRef } from "react";
 
 export default function PlaceholderTrigger() {
   const hasTriggered = useRef(false);
-  const cookieChecked = useRef(false);
+  const scrollListenerAdded = useRef(false);
 
   useEffect(() => {
-    // Проверяем cookie, чтобы не показывать Popunder чаще, чем раз в 6 часов
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -21,36 +20,26 @@ export default function PlaceholderTrigger() {
       document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/; secure`;
     };
 
-    if (!cookieChecked.current) {
-      cookieChecked.current = true;
-      const cookie = getCookie("bcs_cookie_bongacams_pop");
-      if (cookie) {
-        hasTriggered.current = true; // Уже был показ за последние 6 часов
-      }
+    // Проверяем cookie
+    const cookie = getCookie("bcs_cookie_bongacams_pop");
+    if (cookie) {
+      hasTriggered.current = true;
+      return;
     }
 
-    if (hasTriggered.current) return;
-
-    const handleFirstClick = (e: MouseEvent) => {
-      // Не срабатываем в админке
-      if (window.location.pathname.startsWith("/admin")) return;
-
+    const triggerPopunder = () => {
       if (hasTriggered.current) return;
       hasTriggered.current = true;
 
-      // Устанавливаем cookie на 6 часов (21600000 мс)
-      setCookie("bcs_cookie_bongacams_pop", "1", 6);
+      setCookie("bcs_cookie_bongacams_pop", "1", 1); // 1 час
 
-      // Определяем мобильное устройство
       const isMobile =
         /iPhone|iPad|Android|iPod|BlackBerry|Windows Phone/i.test(
           navigator.userAgent,
         );
 
       if (isMobile) {
-        // Мобильная версия — используем их готовый скрипт
         const script = document.createElement("script");
-        script.id = "BC_P_BONGACAMS_POP";
         script.textContent = `
           (function () {
             var isMobile = false;
@@ -110,13 +99,15 @@ export default function PlaceholderTrigger() {
             
             function checkTarget(e) {
               if (!getCookie('bcs_cookie_bongacams_pop')) {
-                if (e.target.getAttribute('href')) {
-                  setCookie('bcs_cookie_bongacams_pop', 1, 21600000);
-                }
+                setCookie('bcs_cookie_bongacams_pop', 1, 3600000);
                 var el = e.target;
                 var originalHref = el.getAttribute('href');
-                el.setAttribute('href', promo_url);
-                doOpenDtp(promo_url, originalHref);
+                if (originalHref) {
+                  el.setAttribute('href', promo_url);
+                  doOpenDtp(promo_url, originalHref);
+                } else {
+                  window.open(promo_url);
+                }
               }
             }
             
@@ -130,18 +121,48 @@ export default function PlaceholderTrigger() {
         `;
         document.body.appendChild(script);
       } else {
-        // Десктопная версия — вставляем их скрипт
         const script = document.createElement("script");
         script.src =
-          "https://bngpop.com/promo.php?c=837848&params[cookie_life_time]=21600000&type=script&params[ps]=popunder&params[name]=online_sex_redhead&params[url_params]=v%3D2";
+          "https://bngpop.com/promo.php?c=837848&params[cookie_life_time]=3600000&type=script&params[ps]=popunder&params[name]=online_sex_redhead&params[url_params]=v%3D2";
         script.async = true;
-        script.setAttribute("data-cfasync", "false");
         document.body.appendChild(script);
       }
     };
 
-    document.addEventListener("click", handleFirstClick);
-    return () => document.removeEventListener("click", handleFirstClick);
+    // ========== КЛИК ==========
+    const handleClick = () => {
+      if (window.location.pathname.startsWith("/admin")) return;
+      triggerPopunder();
+    };
+
+    // ========== СКРОЛЛ ==========
+    const handleScroll = () => {
+      if (window.location.pathname.startsWith("/admin")) return;
+      if (hasTriggered.current) return;
+
+      const isMobile =
+        /iPhone|iPad|Android|iPod|BlackBerry|Windows Phone/i.test(
+          navigator.userAgent,
+        );
+      const scrollPercent =
+        (window.scrollY + window.innerHeight) /
+        document.documentElement.scrollHeight;
+
+      const threshold = isMobile ? 0.8 : 0.5; // 80% для мобилки, 50% для десктопа
+
+      if (scrollPercent >= threshold) {
+        triggerPopunder();
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+    window.addEventListener("scroll", handleScroll);
+    scrollListenerAdded.current = true;
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return null;
