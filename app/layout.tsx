@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PlaceholderTrigger from "@/components/PlaceholderTrigger";
+import PlaceholderMobile from "@/components/PlaceholderMobile";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -60,8 +61,9 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Popunder BongaCams */}
+        {/* Popunder */}
         <PlaceholderTrigger />
+        <PlaceholderMobile />
       </body>
     </html>
   );
