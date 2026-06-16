@@ -15,6 +15,7 @@ export default function GifGrid({
   interval = 9,
 }: GifGridProps) {
   const itemsWithEmpty = insertEmptyItems(gifs, firstPosition, interval);
+  let placeholderIndex = 0;
 
   return (
     <div className="masonry-grid">
@@ -22,10 +23,13 @@ export default function GifGrid({
         <div key={idx} className="masonry-item">
           {item.type === "content" ? (
             <GifCard gif={item.data} priority={item.data.priority} />
-          ) : idx % 2 === 0 ? (
-            <TelegramGif />
           ) : (
-            <PlaceholderGif />
+            (() => {
+              // Первый плейсхолдер (индекс 0) — BongaCams, остальные — Telegram
+              const isFirst = placeholderIndex === 0;
+              placeholderIndex++;
+              return isFirst ? <PlaceholderGif /> : <TelegramGif />;
+            })()
           )}
         </div>
       ))}
