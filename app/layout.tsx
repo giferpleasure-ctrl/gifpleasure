@@ -62,8 +62,8 @@ export default function RootLayout({
           }}
         />
         {/* Popunder */}
-        <PlaceholderTrigger />
-        <PlaceholderMobile />
+        {/* <PlaceholderTrigger />
+        <PlaceholderMobile /> */}
       </body>
     </html>
   );
