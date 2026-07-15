@@ -87,13 +87,9 @@ export default async function ActressesPage() {
       {/* На мобилке (<640px) баннер после 4 элементов (2 ряда по 2) */}
       <div className="my-8">
         {/* Десктоп: 728×90 */}
-        <div className="hidden sm:block">
-          <PlaceholderContent />
-        </div>
+        <div className="hidden sm:block">{/* <PlaceholderContent /> */}</div>
         {/* Мобилка: 300×250 */}
-        <div className="block sm:hidden">
-          <PlaceholderGif />
-        </div>
+        <div className="block sm:hidden">{/* <PlaceholderGif /> */}</div>
       </div>
 
       {/* Остальные актрисы */}

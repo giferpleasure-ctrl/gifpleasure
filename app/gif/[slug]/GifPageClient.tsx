@@ -120,9 +120,9 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
       </div>
 
       {/* АДАПТИВНЫЙ РЕКЛАМНЫЙ БЛОК */}
-      <div className="my-6">
+      {/* <div className="my-6">
         {isMobile ? <PlaceholderGif /> : <PlaceholderContent />}
-      </div>
+      </div> */}
 
       {related.length > 0 && (
         <>

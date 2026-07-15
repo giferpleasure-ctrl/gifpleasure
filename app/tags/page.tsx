@@ -49,12 +49,8 @@ export default async function TagsPage() {
 
       {/* РЕКЛАМНЫЙ БЛОК ВНИЗУ СТРАНИЦЫ — адаптивный */}
       <div className="mt-12">
-        <div className="hidden sm:block">
-          <PlaceholderContent />
-        </div>
-        <div className="block sm:hidden">
-          <PlaceholderGif />
-        </div>
+        <div className="hidden sm:block">{/* <PlaceholderContent /> */}</div>
+        <div className="block sm:hidden">{/* <PlaceholderGif /> */}</div>
       </div>
     </div>
   );
