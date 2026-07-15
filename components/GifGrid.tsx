@@ -12,7 +12,7 @@ interface GifGridProps {
 export default function GifGrid({
   gifs,
   firstPosition = 7,
-  interval = 9,
+  interval = 15,
 }: GifGridProps) {
   const itemsWithEmpty = insertEmptyItems(gifs, firstPosition, interval);
   let placeholderIndex = 0;
@@ -28,7 +28,7 @@ export default function GifGrid({
               // Первый плейсхолдер (индекс 0) — BongaCams, остальные — Telegram
               const isFirst = placeholderIndex === 0;
               placeholderIndex++;
-              return isFirst ? <PlaceholderGif /> : <TelegramGif />;
+              return isFirst ? <TelegramGif /> : <TelegramGif />;
             })()
           )}
         </div>

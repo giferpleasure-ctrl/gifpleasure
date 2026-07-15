@@ -38,14 +38,14 @@ export default function Header() {
               Home
             </Link>
             {/* BongaCams Live Models — розовая ссылка */}
-            <Link
+            {/* <Link
               href="https://bngprm.com/promo.php?type=direct_link&v=2&c=837848&page=top_5_by_growth&g=female"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:text-accent/80 font-medium transition"
             >
               Live Models
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
