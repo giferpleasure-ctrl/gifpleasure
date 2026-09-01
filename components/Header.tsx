@@ -44,7 +44,7 @@ export default function Header() {
               rel="noopener noreferrer"
               className="text-accent hover:text-accent/80 font-medium transition"
             >
-              Now
+              FULL
             </Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
 import path from "path";
 
 // ========== КОНФИГУРАЦИЯ ==========
@@ -44,17 +45,15 @@ async function uploadToSelectel(
   return `https://${BUCKET}.selstorage.ru/${key}`;
 }
 
-// Загрузка файла на ImgBB через base64 (исправленная версия)
+// Загрузка файла на ImgBB через base64
 async function uploadToImgBB(
   buffer: Buffer,
   fileName: string,
 ): Promise<string | null> {
-  // Отправляем ТОЛЬКО base64 строку, без префикса
   const base64 = buffer.toString("base64");
-
   const params = new URLSearchParams();
   params.append("key", IMGBB_API_KEY);
-  params.append("image", base64); // ← только base64, без data:image/...
+  params.append("image", base64);
   params.append("name", fileName);
 
   try {
@@ -94,7 +93,6 @@ export async function GET() {
       "gifs",
       "metadata.json",
     );
-    const { readFile } = await import("fs/promises");
     const content = await readFile(metadataPath, "utf-8");
     const metadata = JSON.parse(content);
     return NextResponse.json(metadata);
@@ -166,6 +164,28 @@ export async function POST(request: NextRequest) {
 
     const id = generateId(titleEn);
 
+    // ----- НОВАЯ ПРОВЕРКА НА ДУБЛИКАТ -----
+    const metadataPath = path.join(
+      process.cwd(),
+      "public",
+      "gifs",
+      "metadata.json",
+    );
+    let existingMetadata = [];
+    try {
+      const content = await readFile(metadataPath, "utf-8");
+      existingMetadata = JSON.parse(content);
+    } catch (e) {
+      // файл не существует или пустой
+    }
+    if (existingMetadata.some((item: any) => item.id === id)) {
+      return NextResponse.json(
+        { error: `ID "${id}" already exists. Please change title.` },
+        { status: 409 },
+      );
+    }
+    // -------------------------------------
+
     const cleanBuffer = Buffer.from(await cleanFile.arrayBuffer());
     const wmBuffer = Buffer.from(await wmFile.arrayBuffer());
     const previewBuffer = Buffer.from(await previewFile.arrayBuffer());
@@ -213,23 +233,7 @@ export async function POST(request: NextRequest) {
       console.error("❌ Local backup error:", error);
     }
 
-    // 4. Metadata
-    const metadataPath = path.join(
-      process.cwd(),
-      "public",
-      "gifs",
-      "metadata.json",
-    );
-    const { readFile, writeFile } = await import("fs/promises");
-
-    let metadata = [];
-    try {
-      const content = await readFile(metadataPath, "utf-8");
-      metadata = JSON.parse(content);
-    } catch (e) {
-      // File doesn't exist
-    }
-
+    // 4. Metadata (переиспользуем existingMetadata)
     const newEntry = {
       id,
       slug: { en: id },
@@ -257,8 +261,8 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    metadata.push(newEntry);
-    await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+    existingMetadata.push(newEntry);
+    await writeFile(metadataPath, JSON.stringify(existingMetadata, null, 2));
 
     return NextResponse.json({ success: true, id, url: `/gif/${id}` });
   } catch (error: any) {
