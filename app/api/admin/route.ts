@@ -17,7 +17,7 @@ const s3 = new S3Client({
 });
 
 const BUCKET = process.env.SELECTEL_BUCKET || "gifpleasure-storage";
-const IMGBB_API_KEY = "d3f74141a2a99723e6874e6bf8b099f7";
+const IMGBB_API_KEY = "887093e2a053594dc86cf5676ab57ff6";
 const IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload";
 const LOCAL_BACKUP_DIR = "H:/gifpleasure_archive/gifs";
 // ==================================
