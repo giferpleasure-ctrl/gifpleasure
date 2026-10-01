@@ -1,16 +1,13 @@
-// app/actress/[name]/page.tsx
-import { getGifs } from "@/lib/gifs";
+import { getFilteredGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import GifGrid from "@/components/GifGrid";
+import GifGridInfinite from "@/components/GifGridInfinite";
 import { Metadata } from "next";
-import { shuffleArray } from "@/lib/shuffle";
 
 interface ActressPageProps {
-  params: {
-    name: string;
-  };
+  params: { name: string };
 }
+
+const CHUNK_SIZE = 45;
 
 export async function generateMetadata({
   params,
@@ -19,22 +16,17 @@ export async function generateMetadata({
   return {
     title: `${actress} — Adult GIFs | GifPleasure`,
     description: `Watch the best GIFs with ${actress}. Free high-quality adult animated GIFs.`,
-    alternates: {
-      canonical: `/actress/${params.name}`,
-    },
+    alternates: { canonical: `/actress/${params.name}` },
   };
 }
 
 export default async function ActressPage({ params }: ActressPageProps) {
-  const allGifs = await getGifs();
   const actressName = decodeURIComponent(params.name).replace(/-/g, " ");
-  const gifs = allGifs.filter(
-    (gif) => gif.actress.toLowerCase() === actressName.toLowerCase(),
-  );
-
-  const shuffledGifs = shuffleArray(gifs);
+  const gifs = await getFilteredGifs({ actress: actressName });
 
   if (gifs.length === 0) notFound();
+
+  const initialItems = gifs.slice(0, CHUNK_SIZE);
 
   return (
     <div>
@@ -44,7 +36,13 @@ export default async function ActressPage({ params }: ActressPageProps) {
           {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} with {actressName}
         </p>
       </div>
-      <GifGrid gifs={shuffledGifs} />
+      <GifGridInfinite
+        key={`actress-${actressName}`}
+        initialItems={initialItems}
+        totalCount={gifs.length}
+        sort="latest"
+        filters={{ actress: actressName }}
+      />
     </div>
   );
 }

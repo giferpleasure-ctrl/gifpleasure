@@ -1,12 +1,12 @@
-// app/search/page.tsx
-import { getGifs } from "@/lib/gifs";
-import GifGrid from "@/components/GifGrid";
+import { getFilteredGifs } from "@/lib/gifs";
+import GifGridInfinite from "@/components/GifGridInfinite";
 import { Metadata } from "next";
-import { shuffleArray } from "@/lib/shuffle";
 
 interface SearchPageProps {
   searchParams: { q?: string };
 }
+
+const CHUNK_SIZE = 45;
 
 export async function generateMetadata({
   searchParams,
@@ -15,10 +15,7 @@ export async function generateMetadata({
   return {
     title: `Search results for "${query}" | GifPleasure`,
     description: `Browse ${query} adult GIFs. Free high-quality animated GIFs.`,
-    robots: {
-      index: true,
-      follow: true,
-    },
+    robots: { index: true, follow: true },
     alternates: {
       canonical: `/search${searchParams.q ? `?q=${encodeURIComponent(searchParams.q)}` : ""}`,
     },
@@ -26,17 +23,9 @@ export async function generateMetadata({
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q?.toLowerCase() || "";
-  const allGifs = await getGifs();
-
-  const results = allGifs.filter((gif) => {
-    const title = (gif.title.en || "").toLowerCase();
-    const tags = gif.tags.some((tag) => tag.toLowerCase().includes(query));
-    const actress = (gif.actress || "").toLowerCase().includes(query);
-    return title.includes(query) || tags || actress;
-  });
-
-  const shuffledResults = shuffleArray(results);
+  const query = searchParams.q || "";
+  const gifs = query.length >= 2 ? await getFilteredGifs({ q: query }) : [];
+  const initialItems = gifs.slice(0, CHUNK_SIZE);
 
   return (
     <div>
@@ -45,16 +34,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           Search results for "{query}"
         </h1>
         <p className="text-textDim">
-          Found {results.length} GIF{results.length !== 1 ? "s" : ""}
+          Found {gifs.length} GIF{gifs.length !== 1 ? "s" : ""}
         </p>
       </div>
 
-      {results.length === 0 ? (
+      {gifs.length === 0 ? (
         <div className="text-center py-12 text-textDim">
           No GIFs found. Try different keywords.
         </div>
       ) : (
-        <GifGrid gifs={shuffledResults} />
+        <GifGridInfinite
+          key={`search-${query}`}
+          initialItems={initialItems}
+          totalCount={gifs.length}
+          sort="latest"
+          filters={{ q: query }}
+        />
       )}
     </div>
   );

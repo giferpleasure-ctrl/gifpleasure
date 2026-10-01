@@ -1,16 +1,10 @@
-import metadata from "@/public/gifs/metadata.json";
+// lib/gifs.ts
+import { readFile } from "fs/promises";
+import path from "path";
 
 export interface GifUrls {
-  imgbb?: {
-    clean?: string;
-    wm?: string;
-    preview?: string;
-  };
-  selectel?: {
-    clean?: string;
-    wm?: string;
-    preview?: string;
-  };
+  imgbb?: { clean?: string; wm?: string; preview?: string };
+  selectel?: { clean?: string; wm?: string; preview?: string };
 }
 
 export interface Gif {
@@ -26,18 +20,22 @@ export interface Gif {
   likes: number;
   views: number;
   createdAt: string;
-  urls?: GifUrls; // ← ДОБАВЛЕНО
+  urls?: GifUrls;
 }
 
-// Получает гифки без статистики (только из metadata.json)
-async function getGifsWithStats(): Promise<Gif[]> {
-  const baseGifs = (metadata as any[]).map((item) => ({
+let cachedMetadata: Gif[] | null = null;
+
+async function loadMetadata(): Promise<Gif[]> {
+  if (cachedMetadata) return cachedMetadata;
+  const p = path.join(process.cwd(), "public", "gifs", "metadata.json");
+  const raw = await readFile(p, "utf-8");
+  const parsed = JSON.parse(raw) as any[];
+  cachedMetadata = parsed.map((item) => ({
     ...item,
     actress: item.actress || "Amateur",
     category: item.category || "anal",
   })) as Gif[];
-
-  return baseGifs;
+  return cachedMetadata;
 }
 
 function mulberry32(seed: number): () => number {
@@ -60,27 +58,27 @@ export function shuffleArray<T>(array: T[], seed: number): T[] {
 }
 
 export async function getGifs(): Promise<Gif[]> {
-  const gifs = await getGifsWithStats();
-  return gifs.sort(
+  const gifs = await loadMetadata();
+  return [...gifs].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
 export async function getGifsShuffled(seed: number): Promise<Gif[]> {
-  const sorted = await getGifs();
-  return shuffleArray(sorted, seed);
+  const gifs = await loadMetadata();
+  return shuffleArray(gifs, seed);
 }
 
 export async function getGifBySlug(slug: string): Promise<Gif | null> {
-  const allGifs = await getGifsWithStats();
-  return allGifs.find((gif) => gif.slug.en === slug) || null;
+  const gifs = await loadMetadata();
+  return gifs.find((g) => g.slug.en === slug) || null;
 }
 
 export async function getRelatedGifs(
   currentId: string,
   limit: number = 8,
 ): Promise<Gif[]> {
-  const allGifs = await getGifsWithStats();
+  const allGifs = await loadMetadata();
   const current = allGifs.find((g) => g.id === currentId);
   if (!current) return [];
 
@@ -114,4 +112,55 @@ export async function getRelatedGifs(
   }
 
   return shuffledResults.slice(0, limit);
+}
+
+export interface GifFilters {
+  category?: string;
+  tag?: string;
+  actress?: string;
+  q?: string;
+}
+
+/**
+ * Фильтрует массив гифок в памяти. Используется и API-роутом, и страницами.
+ */
+export function applyGifFilters(gifs: Gif[], filters: GifFilters): Gif[] {
+  let result = gifs;
+
+  if (filters.category) {
+    const c = filters.category.toLowerCase();
+    result = result.filter((g) => (g.category || "").toLowerCase() === c);
+  }
+
+  if (filters.tag) {
+    const t = filters.tag.toLowerCase();
+    result = result.filter((g) =>
+      g.tags.some((tag) => tag.toLowerCase() === t),
+    );
+  }
+
+  if (filters.actress) {
+    const a = filters.actress.toLowerCase();
+    result = result.filter((g) => (g.actress || "").toLowerCase() === a);
+  }
+
+  if (filters.q) {
+    const q = filters.q.toLowerCase();
+    result = result.filter((g) => {
+      const title = (g.title.en || "").toLowerCase();
+      const tagMatch = g.tags.some((tag) => tag.toLowerCase().includes(q));
+      const actressMatch = (g.actress || "").toLowerCase().includes(q);
+      return title.includes(q) || tagMatch || actressMatch;
+    });
+  }
+
+  return result;
+}
+
+/**
+ * Возвращает отфильтрованные гифки, отсортированные по createdAt desc.
+ */
+export async function getFilteredGifs(filters: GifFilters): Promise<Gif[]> {
+  const gifs = await getGifs();
+  return applyGifFilters(gifs, filters);
 }

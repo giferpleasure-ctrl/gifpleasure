@@ -1,26 +1,13 @@
-// app/category/[name]/page.tsx
-import { getGifs } from "@/lib/gifs";
+import { getFilteredGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import GifGrid from "@/components/GifGrid";
+import GifGridInfinite from "@/components/GifGridInfinite";
 import { Metadata } from "next";
-import { readFile } from "fs/promises";
-import path from "path";
-import { existsSync } from "fs";
-import { shuffleArray } from "@/lib/shuffle";
 
 interface CategoryPageProps {
-  params: {
-    name: string;
-  };
+  params: { name: string };
 }
 
-async function getAllCategories(): Promise<string[]> {
-  const categoriesPath = path.join(process.cwd(), "data", "categories.json");
-  if (!existsSync(categoriesPath)) return [];
-  const content = await readFile(categoriesPath, "utf-8");
-  return JSON.parse(content);
-}
+const CHUNK_SIZE = 45;
 
 export async function generateMetadata({
   params,
@@ -29,37 +16,33 @@ export async function generateMetadata({
   return {
     title: `${category} — Adult GIFs | GifPleasure`,
     description: `Watch the best ${category} adult GIFs. Free high-quality animated GIFs.`,
-    alternates: {
-      canonical: `/category/${category}`,
-    },
+    alternates: { canonical: `/category/${category}` },
   };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const allGifs = await getGifs();
   const categoryName = params.name;
-  const gifs = allGifs.filter(
-    (gif) => gif.category.toLowerCase() === categoryName.toLowerCase(),
-  );
-
-  const shuffledGifs = shuffleArray(gifs);
+  const gifs = await getFilteredGifs({ category: categoryName });
 
   if (gifs.length === 0) notFound();
 
-  const allCategories = await getAllCategories();
-  const displayName = allCategories.includes(categoryName)
-    ? categoryName
-    : categoryName;
+  const initialItems = gifs.slice(0, CHUNK_SIZE);
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{displayName}</h1>
+        <h1 className="text-3xl font-bold mb-2">{categoryName}</h1>
         <p className="text-textDim">
-          {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} in {displayName}
+          {gifs.length} GIF{gifs.length !== 1 ? "s" : ""} in {categoryName}
         </p>
       </div>
-      <GifGrid gifs={shuffledGifs} />
+      <GifGridInfinite
+        key={`category-${categoryName}`}
+        initialItems={initialItems}
+        totalCount={gifs.length}
+        sort="latest"
+        filters={{ category: categoryName }}
+      />
     </div>
   );
 }

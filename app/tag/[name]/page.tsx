@@ -1,23 +1,19 @@
-// app/tag/[name]/page.tsx
-import { getGifs } from "@/lib/gifs";
+import { getFilteredGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import GifGrid from "@/components/GifGrid";
+import GifGridInfinite from "@/components/GifGridInfinite";
 import { Metadata } from "next";
-import { shuffleArray } from "@/lib/shuffle";
 
 interface TagPageProps {
-  params: {
-    name: string;
-  };
+  params: { name: string };
 }
+
+const CHUNK_SIZE = 45;
 
 export async function generateMetadata({
   params,
 }: TagPageProps): Promise<Metadata> {
   const tag = params.name;
   const decodedTag = decodeURIComponent(tag);
-
   return {
     title: `#${decodedTag} — GIFs | GifPleasure`,
     description: `Watch the best #${decodedTag} adult GIFs. Free high-quality animated GIFs.`,
@@ -25,26 +21,17 @@ export async function generateMetadata({
       title: `#${decodedTag} — Adult GIFs`,
       description: `Collection of #${decodedTag} GIFs`,
     },
-    alternates: {
-      canonical: `/tag/${tag}`,
-    },
+    alternates: { canonical: `/tag/${tag}` },
   };
 }
 
 export default async function TagPage({ params }: TagPageProps) {
   const tag = decodeURIComponent(params.name);
+  const gifs = await getFilteredGifs({ tag });
 
-  const allGifs = await getGifs();
+  if (gifs.length === 0) notFound();
 
-  const gifs = allGifs.filter((gif) =>
-    gif.tags.some((t) => t.toLowerCase() === tag.toLowerCase()),
-  );
-
-  const shuffledGifs = shuffleArray(gifs);
-
-  if (gifs.length === 0) {
-    notFound();
-  }
+  const initialItems = gifs.slice(0, CHUNK_SIZE);
 
   return (
     <div>
@@ -55,8 +42,13 @@ export default async function TagPage({ params }: TagPageProps) {
           <span className="text-accent">#{tag}</span>
         </p>
       </div>
-
-      <GifGrid gifs={shuffledGifs} />
+      <GifGridInfinite
+        key={`tag-${tag}`}
+        initialItems={initialItems}
+        totalCount={gifs.length}
+        sort="latest"
+        filters={{ tag }}
+      />
     </div>
   );
 }

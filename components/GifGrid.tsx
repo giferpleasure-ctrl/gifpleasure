@@ -1,58 +1,54 @@
 import GifCard from "./GifCard";
-import { insertEmptyItems } from "@/lib/contentInject";
 import TelegramInFeed from "./TelegramInFeed";
 import GirlInFeed from "./GirlInFeed";
 import MindInFeed from "./MindInFeed";
 
 interface GifGridProps {
   gifs: any[];
-  firstPosition?: number;
-  interval?: number;
 }
 
-export default function GifGrid({
-  gifs,
-  firstPosition = 7,
-  interval = 12,
-}: GifGridProps) {
-  const itemsWithEmpty = insertEmptyItems(gifs, firstPosition, interval);
-  let placeholderIndex = 0;
+// First placeholder после гифки с индексом 6 (0-based), шаг в гифках = 11.
+// Соответствует прежним firstPosition=7, interval=12, но в глобальных терминах.
+const FIRST_GIF_INDEX = 6;
+const STEP = 11;
 
-  return (
-    <div className="masonry-grid">
-      {itemsWithEmpty.map((item, idx) => {
-        if (item.type === "content") {
-          return (
-            <div key={idx} className="masonry-item">
-              <GifCard gif={item.data} priority={item.data.priority} />
-            </div>
-          );
-        }
+function shouldPlaceholderAfter(globalIndex: number): boolean {
+  if (globalIndex < FIRST_GIF_INDEX) return false;
+  return (globalIndex - FIRST_GIF_INDEX) % STEP === 0;
+}
 
-        const i = placeholderIndex++;
+function getPlaceholderType(globalIndex: number): "mind" | "girl" | "telegram" {
+  const n = (globalIndex - FIRST_GIF_INDEX) / STEP;
+  if (n === 0) return "mind";
+  if (n === 1) return "girl";
+  return "telegram";
+}
 
-        if (i === 0) {
-          return (
-            <div key={idx} className="masonry-item">
-              <MindInFeed />
-            </div>
-          );
-        }
+export default function GifGrid({ gifs }: GifGridProps) {
+  const cells: React.ReactNode[] = [];
 
-        if (i === 1) {
-          return (
-            <div key={idx} className="masonry-item">
-              <GirlInFeed />
-            </div>
-          );
-        }
+  gifs.forEach((gif, idx) => {
+    cells.push(
+      <div key={`gif-${gif.id}`} className="masonry-item">
+        <GifCard gif={gif} priority={gif.priority} />
+      </div>,
+    );
 
-        return (
-          <div key={idx} className="masonry-item">
+    if (shouldPlaceholderAfter(idx)) {
+      const type = getPlaceholderType(idx);
+      cells.push(
+        <div key={`ph-${idx}`} className="masonry-item">
+          {type === "mind" ? (
+            <MindInFeed />
+          ) : type === "girl" ? (
+            <GirlInFeed />
+          ) : (
             <TelegramInFeed />
-          </div>
-        );
-      })}
-    </div>
-  );
+          )}
+        </div>,
+      );
+    }
+  });
+
+  return <div className="masonry-grid">{cells}</div>;
 }
