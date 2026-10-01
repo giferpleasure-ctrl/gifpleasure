@@ -4,8 +4,6 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PlaceholderTrigger from "@/components/PlaceholderTrigger";
-import PlaceholderMobile from "@/components/PlaceholderMobile";
 import MindPopunder from "@/components/MindPopunder";
 
 const inter = Inter({ subsets: ["latin"] });

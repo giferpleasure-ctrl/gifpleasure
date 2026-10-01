@@ -5,11 +5,7 @@ import { getRelatedGifs, getGifs } from "@/lib/gifs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifInteractions from "@/components/GifInteractions";
-import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
-import TelegramPlaceholder from "@/components/TelegramLeaderboard";
-import TelegramGif from "@/components/TelegramInFeed";
-import PlaceholderGif from "@/components/GirlInFeed";
-import PlaceholderContent from "@/components/PlaceholderContent";
+import { getGifUrl } from "@/lib/getGifUrl";
 import MindLeaderboard from "@/components/MindLeaderboard";
 import MindMobileBanner from "@/components/MindMobileBanner";
 

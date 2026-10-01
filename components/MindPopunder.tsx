@@ -15,7 +15,6 @@ export default function MindPopunder() {
   useEffect(() => {
     if (pathname?.startsWith("/admin")) return;
 
-    // Сессионная кука — умирает при закрытии браузера
     if (
       document.cookie
         .split("; ")
@@ -24,11 +23,18 @@ export default function MindPopunder() {
       return;
     }
 
-    document.cookie = `${SESSION_COOKIE}=1; path=/; SameSite=Lax`;
     setShouldLoad(true);
   }, [pathname]);
 
   if (!shouldLoad) return null;
 
-  return <Script src={POPUNDER_SRC} strategy="afterInteractive" />;
+  return (
+    <Script
+      src={POPUNDER_SRC}
+      strategy="afterInteractive"
+      onLoad={() => {
+        document.cookie = `${SESSION_COOKIE}=1; path=/; SameSite=Lax`;
+      }}
+    />
+  );
 }
