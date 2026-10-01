@@ -6,10 +6,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import GifInteractions from "@/components/GifInteractions";
 import { getGifUrl } from "@/lib/getGifUrl"; // ← ИЗМЕНЕНО
-import TelegramPlaceholder from "@/components/TelegramPlaceholder";
-import TelegramGif from "@/components/TelegramGif";
-import PlaceholderGif from "@/components/PlaceholderGif";
+import TelegramPlaceholder from "@/components/TelegramLeaderboard";
+import TelegramGif from "@/components/TelegramInFeed";
+import PlaceholderGif from "@/components/GirlInFeed";
 import PlaceholderContent from "@/components/PlaceholderContent";
+import MindLeaderboard from "@/components/MindLeaderboard";
+import MindMobileBanner from "@/components/MindMobileBanner";
 
 interface GifPageClientProps {
   initialGif: any;
@@ -26,7 +28,7 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
   const [related, setRelated] = useState<any[]>([]);
   const [prevGifData, setPrevGifData] = useState<any>(null);
   const [nextGifData, setNextGifData] = useState<any>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -120,9 +122,11 @@ export default function GifPageClient({ initialGif }: GifPageClientProps) {
       </div>
 
       {/* АДАПТИВНЫЙ РЕКЛАМНЫЙ БЛОК */}
-      {/* <div className="my-6">
-        {isMobile ? <PlaceholderGif /> : <PlaceholderContent />}
-      </div> */}
+      {isMobile !== null && (
+        <div className="my-6">
+          {isMobile ? <MindMobileBanner /> : <MindLeaderboard />}
+        </div>
+      )}
 
       {related.length > 0 && (
         <>

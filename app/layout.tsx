@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PlaceholderTrigger from "@/components/PlaceholderTrigger";
 import PlaceholderMobile from "@/components/PlaceholderMobile";
+import MindPopunder from "@/components/MindPopunder";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,9 +62,7 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Popunder */}
-        {/* <PlaceholderTrigger />
-        <PlaceholderMobile /> */}
+        <MindPopunder />
       </body>
     </html>
   );

@@ -37,14 +37,14 @@ export default function Header() {
             <Link href={href} className="hover:text-accent">
               Home
             </Link>
-            {/* BongaCams Live Models — розовая ссылка */}
+
             <Link
-              href="https://www.effectivecpmnetwork.com/s2cw8jhte?key=666d001e4aafe9b722c431be354f102e"
+              href="https://t.me/+EEwXBmddaHw2YWVi"
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent hover:text-accent/80 font-medium transition"
             >
-              Click
+              Telegram
             </Link>
           </div>
         </div>

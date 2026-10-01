@@ -1,10 +1,7 @@
 import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
-import TelegramPlaceholder from "@/components/TelegramPlaceholder";
-import TelegramGif from "@/components/TelegramGif";
-import PlaceholderContent from "@/components/PlaceholderContent";
-import PlaceholderGif from "@/components/PlaceholderGif";
+import MindResponsiveBanner from "@/components/MindResponsiveBanner";
 
 export const metadata: Metadata = {
   title: "All Tags | GifPleasure",
@@ -35,6 +32,11 @@ export default async function TagsPage() {
         you're looking for.
       </p>
 
+      {/* Баннер над облаком тегов */}
+      <div className="my-8">
+        <MindResponsiveBanner />
+      </div>
+
       <div className="flex flex-wrap gap-3">
         {tags.map((tag) => (
           <Link
@@ -45,12 +47,6 @@ export default async function TagsPage() {
             #{tag}
           </Link>
         ))}
-      </div>
-
-      {/* РЕКЛАМНЫЙ БЛОК ВНИЗУ СТРАНИЦЫ — адаптивный */}
-      <div className="mt-12">
-        <div className="hidden sm:block">{/* <PlaceholderContent /> */}</div>
-        <div className="block sm:hidden">{/* <PlaceholderGif /> */}</div>
       </div>
     </div>
   );

@@ -2,10 +2,7 @@ import { getGifs } from "@/lib/gifs";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getGifUrl } from "@/lib/getGifUrl";
-import TelegramPlaceholder from "@/components/TelegramPlaceholder";
-import TelegramGif from "@/components/TelegramGif";
-import PlaceholderContent from "@/components/PlaceholderContent";
-import PlaceholderGif from "@/components/PlaceholderGif";
+import MindResponsiveBanner from "@/components/MindResponsiveBanner";
 
 export const metadata: Metadata = {
   title: "All Categories | GifPleasure",
@@ -35,7 +32,6 @@ export default async function CategoriesPage() {
   // На десктопе (5 колонок) баннер после 5 элементов
   // На мобилке (2 колонки) баннер после 4 элементов
   const firstRowCountDesktop = 5;
-  const firstRowCountMobile = 4;
 
   const firstRow = categories.slice(0, firstRowCountDesktop);
   const rest = categories.slice(firstRowCountDesktop);
@@ -78,13 +74,8 @@ export default async function CategoriesPage() {
       </div>
 
       {/* РЕКЛАМНЫЙ БЛОК — позиция зависит от экрана */}
-      {/* На десктопе (≥640px) баннер после первого ряда (5 элементов) */}
-      {/* На мобилке (<640px) баннер после 4 элементов (2 ряда по 2) */}
       <div className="my-8">
-        {/* Десктоп: 728×90 */}
-        <div className="hidden sm:block">{/* <PlaceholderContent /> */}</div>
-        {/* Мобилка: 300×250 */}
-        <div className="block sm:hidden">{/* <PlaceholderGif /> */}</div>
+        <MindResponsiveBanner />
       </div>
 
       {/* Остальные категории */}
